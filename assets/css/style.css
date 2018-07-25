@@ -1,0 +1,8 @@
+:root {
+    --trans: all 300ms ease-in-out;
+}
+
+body, html {
+    box-sizing: border-box;
+    height: 100vh;
+}
