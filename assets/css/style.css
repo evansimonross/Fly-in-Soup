@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins');
+
 @font-face {
     font-family: quiska0;
     src: url(../fonts/quiska.ttf);
@@ -5,10 +7,118 @@
 
 :root {
     --trans: all 300ms ease-in-out;
-
+    --boxshadow: 5px 5px 20px 0 #ddd;
+    --title: "quiska0";
+    --text: "Poppins", sans-serif;
 }
 
 body, html {
     box-sizing: border-box;
     height: 100vh;
+    font-family: var(--text);
+    overflow: hidden;
+}
+
+.container-fluid {
+    height: 90%;
+    padding: 25px 0;
+    position: relative;
+}
+
+.navbar {
+    box-shadow: var(--boxshadow);
+}
+
+.navbar-brand img {
+    height: 40px;
+    /* padding-bottom: 10px; */
+}
+
+.navbar-brand h3 {
+    display: inline;
+    font-family: var(--title);
+}
+
+
+#map {
+    width: 40%;
+    height: 100%;
+    padding: 10px;
+    
+}
+
+#resturant-cards {
+    width: 60%;
+    height: 100%;
+    padding: 10px;
+    overflow: auto;
+}
+
+/* map info -- need to change img to ??? when map is created */
+#map img {
+    height: 100%;
+    float: right;
+}
+
+#modal-map {
+    width: 80%;
+    margin: 0 auto;
+}
+
+#modal-name {
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.modal-row {
+    margin: 20px 0;
+}
+
+.card {
+    border: none;
+    margin: 15px 0;
+    height: 190px;
+}
+
+.card-body {
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+}
+
+.card:hover .card-body {
+    box-shadow: var(--boxshadow);
+    cursor: pointer;
+}
+
+.card-text {
+    margin-bottom: 0;
+}
+
+.scrollbar-primary::-webkit-scrollbar {
+    background-color: #fff; 
+}
+
+.scrollbar-primary::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #eeeeee46;
+}
+
+
+@media (max-width: 940px) {
+    #resturant-cards,
+    #map {
+        width: 100%;
+        height: 50%;
+    }
+}
+
+@media (max-width: 720px) {
+    #map {
+        height: 40%;
+    }
+
+    #resturant-cards {
+        height: 60%;
+    }
 }
