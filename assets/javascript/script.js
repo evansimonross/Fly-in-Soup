@@ -117,8 +117,7 @@ $(function() {
         $(".more-info").append($("<li>").text("Inspection Date: " + $(this).find(".card-body").attr("data-inspection-date")));
         $(".more-info").append($("<li>").text("Violation Description: " + $(this).find(".card-body").attr("data-violation-description")));
 
-
-
         $('#myModal').modal('show')
+
     })
 })
