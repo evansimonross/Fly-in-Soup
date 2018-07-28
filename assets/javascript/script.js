@@ -108,6 +108,11 @@ $(function() {
         //     $(".more-info").append($("<li>").text(allData[index].more-info[i]))
         // }
 
-        $('#myModal').modal('show')
+
+
+        ///////////////////////// Function for opening id="dialog-confirm" modal on the page//////////
+        // $( function() {
+        //     $( "#dialog-confirm" ).dialog("open");
+        //     } );
     })
 })

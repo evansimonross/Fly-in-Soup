@@ -9,6 +9,62 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
 
     <link rel="stylesheet" href="assets/css/style.css">
+
+
+    <!--jQuery Modal library Link-->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> 
+    <!--jQuery Modal default CSS stylesheet-->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <!--Page Specific Modal-->
+
+    <script>
+
+        $( function() {
+            $( "#dialog-confirm" ).dialog({
+              autoOpen: false,
+              show: {
+                effect: "blind",
+                duration: 1000
+              },
+              resizable: false,
+              height: "auto",
+              height: 620,
+            width: 960,
+              modal: true,
+              buttons: {
+                "Try Again!": function() {
+                  location.reload();
+                },
+            
+              }
+            });
+          } );
+
+                  $( function() {
+            $( "#dialog-win" ).dialog({
+              autoOpen: false,
+              show: {
+                effect: "blind",
+                duration: 1000
+              },
+              resizable: false,
+              height: "auto",
+              height: 620,
+            width: 960,
+              modal: true,
+              buttons: {
+                "Hurray!!!": function() {
+                  location.reload();
+                },
+            
+              }
+            });
+          } );
+          </script>
+
+
+
 </head>
 <body>
 
@@ -75,7 +131,11 @@
     </div>
 
 
-
+                         <!-- Actual Modal Text; already formatted to be hidden-->
+                                <!-- 
+                                    <div id="dialog-confirm" style="display:none;" title="WoW!!!">
+                                        <img src="assets/images/winner.gif" class="modalpic">
+                                    </div> -->
 
     <!-- JQuery -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
