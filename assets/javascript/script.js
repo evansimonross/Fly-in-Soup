@@ -20,10 +20,10 @@ $(function() {
         $(`#${num}`).append($(`<h6 class="add2 card-subtitle mb-2 text-muted"> ${obj.address2}</h6>`))
         $(`#${num}`).append($(`<p class="grade card-text"> Grade: ${obj.grade}</p>`))
         $(`#${num}`).append($(`<p class="v-icon card-text"> Violation Code: ${obj.violation_code}</p>`))
-        $(`#${num}`).attr('data-record-date', obj["record_date"]);
-        $(`#${num}`).attr('data-inspection-date', obj["inspection_date"]);
-        $(`#${num}`).attr('data-violation-description', obj["violation_description"]);
-        $(`#${num}`).attr('data-cuisine', obj["cuisine_description"]);
+        $(`#${num}`).attr('data-record-date', obj["record_date"])
+        $(`#${num}`).attr('data-inspection-date', obj["inspection_date"])
+        $(`#${num}`).attr('data-violation-description', obj["violation_description"])
+        $(`#${num}`).attr('data-cuisine', obj["cuisine_description"])
 
     }
 
@@ -37,7 +37,7 @@ $(function() {
             // zipcode
             queryParam = `?zipcode=${queryParam}`
         } else if (/[a-zA-Z]/.test(queryParam)) {
-            queryParam.toUpperCase()
+            queryParam = queryParam.toUpperCase()
 
             if (queryParam === "MANHATTAN" || queryParam === "BROOKLYN" || queryParam === "QUEENS" || queryParam === "BRONX" || queryParam === "STATEN ISLAND") {
                 // boro
@@ -55,7 +55,7 @@ $(function() {
     // API search btn
     $("#nav-search").on("click", function(event) {
         event.preventDefault()
-        var queryURL = buildQueryURL()  
+        var queryURL = buildQueryURL()
 
         $.ajax({
             url: queryURL,
@@ -72,8 +72,8 @@ $(function() {
             // creates the data array
             for(let i = 0; i < response.length; i++) {
                 var thisRestaurant = response[i];
-                thisRestaurant.address1 = `${response[i].building} ${response[i].street}`;
-                thisRestaurant.address2 = `${response[i].boro}, NY, ${response[i].zipcode}`;
+                thisRestaurant.address1 = `${response[i].building} ${response[i].street}`
+                thisRestaurant.address2 = `${response[i].boro}, NY, ${response[i].zipcode}`
                 allData.push(thisRestaurant)
             }
 
@@ -96,7 +96,7 @@ $(function() {
         let grade = $(this).find(".grade").text()
         let vcode = $(this).find(".v-icon").text()
 
-        let index = allData.findIndex(x => x.name === resturantName);
+        let index = allData.findIndex(x => x.name === resturantName)
         
 
         $("#modal-name").text(resturantName)
@@ -112,10 +112,10 @@ $(function() {
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         
-        $(".more-info").append($("<li>").text("Cuisine: " + $(this).find(".card-body").attr("data-cuisine")));
-        $(".more-info").append($("<li>").text("Record Date: " + $(this).find(".card-body").attr("data-record-date")));
-        $(".more-info").append($("<li>").text("Inspection Date: " + $(this).find(".card-body").attr("data-inspection-date")));
-        $(".more-info").append($("<li>").text("Violation Description: " + $(this).find(".card-body").attr("data-violation-description")));
+        $(".more-info").append($("<li>").text("Cuisine: " + $(this).find(".card-body").attr("data-cuisine")))
+        $(".more-info").append($("<li>").text("Record Date: " + $(this).find(".card-body").attr("data-record-date")))
+        $(".more-info").append($("<li>").text("Inspection Date: " + $(this).find(".card-body").attr("data-inspection-date")))
+        $(".more-info").append($("<li>").text("Violation Description: " + $(this).find(".card-body").attr("data-violation-description")))
 
         $('#myModal').modal('show')
 
