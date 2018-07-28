@@ -1,16 +1,24 @@
+// global variable to hold user's geolocation
+let userLocation = "";
+
 $(function() {
     // holds all the data from the API search
     let allData = []
     let i = 0
 
-    // // creates the objects from the data
-    // function RestObject(name, address1, address2, grade, vIcon) {
-    //     this.name = name
-    //     this.address1 = address1
-    //     this.address2 = address2
-    //     this.grade = grade
-    //     this.vIcon = vIcon
-    // }
+    // fetches the user's geolocation from the browser
+    let getLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position){ 
+                userLocation = position 
+                console.log(userLocation)
+            })
+        } else { 
+            console.log("Could not access user's location")
+        }
+    }
+    getLocation();
+
 
     // delete then creates the cards in HTML
     let createCard = (obj, num) => {
@@ -50,8 +58,6 @@ $(function() {
         return queryURL + queryParam
     }
     
-
-
     // API search btn
     $("#nav-search").on("click", function(event) {
         event.preventDefault()
