@@ -19,7 +19,6 @@ $(function() {
     }
     getLocation();
 
-
     // delete then creates the cards in HTML
     let createCard = (obj, num) => {
         $("#resturant-cards").append($('<div class="card col-xl-4 col-lg-6 col-md-4">').append($("<div>").addClass("card-body").attr("id",num)))
@@ -127,3 +126,14 @@ $(function() {
 
     })
 })
+
+// geocoding an address function. 
+// when you use this, call it like so:
+// toGeocode(address).then(function(response){ // STUFF HERE })
+var toGeocode = (address) => {
+    let queryUrl = "https://geosearch.planninglabs.nyc/v1/search?size=1&text=" + address
+    return $.ajax({
+        url: queryUrl,
+        method: "GET",
+    })
+}
