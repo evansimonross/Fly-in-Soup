@@ -119,6 +119,11 @@ $(function() {
 
 
 
-        $('#myModal').modal('show')
+
+
+        ///////////////////////// Function for opening id="dialog-confirm" modal on the page//////////
+        // $( function() {
+        //     $( "#dialog-confirm" ).dialog("open");
+        //     } );
     })
 })
