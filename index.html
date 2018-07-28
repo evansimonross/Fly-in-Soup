@@ -7,46 +7,81 @@
     <title>Test</title>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
-    
+
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+
     <!-- nav bar -->
     <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#"><h1 style="width: 100px; height: 50px;">Fly-in-Soup</h1></a>
-            
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-    
-            <div class="collapse navbar-collapse" id="navbarResponsive">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active"><a href="#" class="nav-link">Home</a> </li>
-                    <li class="nav-item"><a href="#" class="nav-link">About</a> </li>
-                    <li class="nav-item"><a href="#" class="nav-link">Team</a> </li>
-                    <li class="nav-item"><a href="#" class="nav-link">Contact</a> </li>
-                </ul>
-            </div>
+        <!-- logo -->
+        <a class="navbar-brand" href="#">
+            <img src="assets/images/fly_soup.png" alt="logo">
+            <h3>Fly-in-Soup</h3>
+        </a>
+        <!-- search bar -->
+        <form class="form-inline my-2 my-lg-0">
+            <input id="nav-input" class="form-control mr-sm-2" type="search" placeholder="Zipcode, Boro or Resturant" list="options" name="options">
+            <datalist id="options">
+                <option value="Current Location">
+                <option value="MANHATTAN">
+                <option value="BROOKLYN">
+                <option value="QUEENS">
+                <option value="BRONX">
+                <option value="STATEN ISLAND">
+            </datalist>
+            <button id="nav-search" class="btn btn-outline-secondary my-2 my-sm-0" type="submit">Search</button>
+        </form>
+        
+        <!-- toggle btn when window is small -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- other pages -->
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active"><a href="#" class="nav-link">Home</a> </li>
+                <li class="nav-item"><a href="#" class="nav-link">About</a> </li>
+                <li class="nav-item"><a href="#" class="nav-link">Team</a> </li>
+                <li class="nav-item"><a href="#" class="nav-link">Contact</a> </li>
+            </ul>
         </div>
     </nav>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- maps -->
-            <div class="col-md-12 col-lg-6">
 
-            </div>
-            
-            <!-- modles -->
-            <div class="col-md-12 col-lg-6">
-                
+    <div class="container-fluid">
+        <!-- remove image and place map here -->
+        <div id="map" class="float-md-none float-lg-right">
+            <img src="assets/images/placeholder.png" alt="map goes here" class="img-fluid">
+        </div>
+
+        <!-- the resturant cards go here -->
+        <div id="resturant-cards" class="float-md-none float-lg-right row scrollbar scrollbar-primary"></div>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-name"></h5>
+                </div>
+                <div class="modal-body">
+                </div>
             </div>
         </div>
     </div>
 
+
+
+
     <!-- JQuery -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+    <!-- bootstrap jquery -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js"></script>
     
     <!-- Moment -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/locale/af.js"></script>
