@@ -106,7 +106,7 @@ h1 {
 .card {
     border: none;
     margin: 15px 0;
-    height: 190px;
+/* height: 190px; */
 }
 
 .card-body {
