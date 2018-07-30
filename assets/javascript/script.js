@@ -18,6 +18,8 @@ $(function() {
         }
     }
     getLocation();
+    
+    
 
 
     // delete then creates the cards in HTML
