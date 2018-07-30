@@ -27,7 +27,7 @@ $(function() {
         $(`#${num}`).append($(`<h6 class="add1 card-subtitle mb-2 text-muted"> ${obj.address1}</h6>`))
         $(`#${num}`).append($(`<h6 class="add2 card-subtitle mb-2 text-muted"> ${obj.address2}</h6>`))
         $(`#${num}`).attr('data-record-date', obj["record_date"])
-        $(`#${num}`).attr('data-inspection-date', obj["inspection_date"])
+        $(`#${num}`).attr('data-inspection-date', obj["inspection_date"].substring(0,10))
         $(`#${num}`).attr('data-violation-code', obj["violation_code"])
         $(`#${num}`).attr('data-violation-description', obj["violation_description"])
         $(`#${num}`).attr('data-cuisine', obj["cuisine_description"])
@@ -66,7 +66,7 @@ $(function() {
             url: queryURL,
             method: "GET",
             data: {
-                "$limit" : 20,
+                "$limit" : 100,
                 "$where": "grade IS NOT NULL", // Prevents results with undefined grades from showing up in results.
                 "$$app_token" : "jOHHqdrBMVMNGmFWFLpWE22PP" // API token speeds up API retreval speed
               }
