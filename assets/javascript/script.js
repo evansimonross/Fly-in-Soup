@@ -2,13 +2,13 @@
 
 
 // global variable to hold user's geolocation
-let userLocation = "";
 let latitude
 let longitude
+let userLocation
+let allData = []
 
 $(function() {
     // holds all the data from the API search
-    let allData = []
     let i = 0
 
     // fetches the user's geolocation from the browser
@@ -37,7 +37,10 @@ $(function() {
         $(`#${num}`).attr('data-violation-code', obj["violation_code"])
         $(`#${num}`).attr('data-violation-description', obj["violation_description"])
         $(`#${num}`).attr('data-cuisine', obj["cuisine_description"])
-
+        toGeocode(obj.address1 + " " + obj.address2).then(function(response){ 
+            $(`#${num}`).attr('data-longitude', response.bbox[0]);
+            $(`#${num}`).attr('data-latitude', response.bbox[1]);
+        })
     }
 
     // build query
@@ -68,12 +71,7 @@ $(function() {
         var queryURL = `https://developers.zomato.com/api/v2.1/geocode?apikey=625bdeced0acd6c03b8a61c2593a9093&lat=${lat}&lon=${long}`
         $.ajax({
             url: queryURL,
-            method: "GET",
-            data: {
-                "$limit" : 100,
-                "$where": "grade IS NOT NULL", // Prevents results with undefined grades from showing up in results.
-                "$$app_token" : "jOHHqdrBMVMNGmFWFLpWE22PP" // API token speeds up API retreval speed
-              }
+            method: "GET"
           }).then(function(response) {
             var data = response.nearby_restaurants
             var currentRestList = []
@@ -96,8 +94,6 @@ $(function() {
                         "$$app_token" : "jOHHqdrBMVMNGmFWFLpWE22PP" // API token speeds up API retreval speed
                 }
                 }).then(function(response) {
-                    console.log("in then");
-
                     // creates the data array
                     for(let i = 0; i < response.length; i++) {
                         var thisRestaurant = response[i];
@@ -127,9 +123,6 @@ $(function() {
         event.preventDefault()
         if ($("#nav-input").val().trim() === "Current Location") {
             let restList
-
-            getLocation()
-
             getResturantList(latitude, longitude)
 
         } else {
