@@ -70,17 +70,16 @@
         <div class="float-md-none float-lg-right map">
             <div id='map' style='width: 800px; height: 1000px;'></div>
                         <script>
-                            
-                        mapboxgl.accessToken = 'pk.eyJ1IjoianJvemU4OCIsImEiOiJjams1bDI2MjAxbHQzM3BsZTV0eDEyOHV3In0.QZaTrfBl6_lWiHHSg8FU8g';
-                        var map = new mapboxgl.Map({
-                            container: 'map',
-                            style: 'mapbox://styles/jroze88/cjk5oti5118x12smszye7x1o0',
-                            showUserLocation: true
+                                mapboxgl.accessToken = 'pk.eyJ1IjoianJvemU4OCIsImEiOiJjams1bDI2MjAxbHQzM3BsZTV0eDEyOHV3In0.QZaTrfBl6_lWiHHSg8FU8g';
+                                        var map = new mapboxgl.Map({
+                                            container: 'map',
+                                            style: 'mapbox://styles/jroze88/cjk5oti5118x12smszye7x1o0',
+                                            showUserLocation: true,
+                                            zoom: 13,
+                                            center: [-73.9840, 40.7549]
 
-                        });
-                        // marker = new mapboxgl.Marker()
-                        //         .setLngLat([73.9840, 40.7549])
-                        //         .addTo(map);
+    });
+                       
                         </script>
         </div>
 

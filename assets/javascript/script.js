@@ -19,7 +19,24 @@ $(function() {
     }
     getLocation();
     
-    
+
+    marker = new mapboxgl.Marker()
+            .setLngLat([-73.9840, 40.7549])
+            .addTo(map);
+
+
+            // GeoJSON :
+            // {
+            //     "geometry": {
+            //       "coordinates": [
+            //         -80.21321961619319,
+            //         40.12941047087537
+            //       ],
+            //       "type": "Point"
+            //     },
+            //     "type": "Feature",
+            //     "properties": {}
+            //   }
 
 
     // delete then creates the cards in HTML
