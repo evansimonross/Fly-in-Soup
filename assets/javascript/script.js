@@ -1,5 +1,10 @@
+// change color of the sstyle box to equal the grade
+
+
 // global variable to hold user's geolocation
 let userLocation = "";
+let latitude
+let longitude
 
 $(function() {
     // holds all the data from the API search
@@ -10,8 +15,9 @@ $(function() {
     let getLocation = () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position){ 
-                userLocation = position 
-                console.log(userLocation)
+                userLocation = position
+                longitude = parseFloat(userLocation.coords.longitude).toFixed(4)
+                latitude = parseFloat(userLocation.coords.latitude).toFixed(4)
             })
         } else { 
             console.log("Could not access user's location")
@@ -56,12 +62,10 @@ $(function() {
         }      
         return queryURL + queryParam
     }
-    
-    // API search btn
-    $("#nav-search").on("click", function(event) {
-        event.preventDefault()
-        var queryURL = buildQueryURL()
 
+    let getResturantList = (lat, long) => {
+        
+        var queryURL = `https://developers.zomato.com/api/v2.1/geocode?apikey=625bdeced0acd6c03b8a61c2593a9093&lat=${lat}&lon=${long}`
         $.ajax({
             url: queryURL,
             method: "GET",
@@ -71,28 +75,98 @@ $(function() {
                 "$$app_token" : "jOHHqdrBMVMNGmFWFLpWE22PP" // API token speeds up API retreval speed
               }
           }).then(function(response) {
-            // clears the data array
+            var data = response.nearby_restaurants
+            var currentRestList = []
+                
+            for(let i = 0; i < data.length; i++){
+                currentRestList.push(data[i].restaurant.name)
+            }
             allData = []
 
-            // creates the data array
-            for(let i = 0; i < response.length; i++) {
-                var thisRestaurant = response[i];
-                thisRestaurant.address1 = `${response[i].building} ${response[i].street}`
-                thisRestaurant.address2 = `${response[i].boro}, NY, ${response[i].zipcode}`
-                allData.push(thisRestaurant)
-            }
+            currentRestList.forEach(element => {
+                
+                element = element.toUpperCase()
+                var queryURL = `https://data.cityofnewyork.us/resource/9w7m-hzhe.json?dba=${element}`
 
-            // clears the cards
-            $("#resturant-cards").empty()
+                $.ajax({
+                    url: queryURL,
+                    method: "GET",
+                    data: {
+                        "$where": "grade IS NOT NULL", // Prevents results with undefined grades from showing up in results.
+                        "$$app_token" : "jOHHqdrBMVMNGmFWFLpWE22PP" // API token speeds up API retreval speed
+                }
+                }).then(function(response) {
+                    console.log("in then");
 
-            //for the length of the array will use the createCard function to create the cards
-            allData.forEach(element => {
-                createCard(element, i)
-                i += 1
-            });
+                    // creates the data array
+                    for(let i = 0; i < response.length; i++) {
+                        var thisRestaurant = response[i];
+                        thisRestaurant.address1 = `${response[i].building} ${response[i].street}`
+                        thisRestaurant.address2 = `${response[i].boro}, NY, ${response[i].zipcode}`
+                        allData.push(thisRestaurant)
+                    }
 
-            $("#nav-input").val("")
+                    // clears the cards
+                    $("#resturant-cards").empty()
+
+                    //for the length of the array will use the createCard function to create the cards
+                    allData.forEach(element => {
+                        createCard(element, i)
+                        i += 1
+                    });
+
+                    $("#nav-input").val("")
+                })
+            })
+              
           })
+    }
+    
+    // API search btn
+    $("#nav-search").on("click", function(event) {
+        event.preventDefault()
+        if ($("#nav-input").val().trim() === "Current Location") {
+            let restList
+
+            getLocation()
+
+            getResturantList(latitude, longitude)
+
+        } else {
+            let queryURL = buildQueryURL()
+
+            $.ajax({
+                url: queryURL,
+                method: "GET",
+                data: {
+                    "$limit" : 20,
+                    "$where": "grade IS NOT NULL", // Prevents results with undefined grades from showing up in results.
+                    "$$app_token" : "jOHHqdrBMVMNGmFWFLpWE22PP" // API token speeds up API retreval speed
+              }
+            }).then(function(response) {
+                // clears the data array
+                allData = []
+
+                // creates the data array
+                for(let i = 0; i < response.length; i++) {
+                    var thisRestaurant = response[i];
+                    thisRestaurant.address1 = `${response[i].building} ${response[i].street}`
+                    thisRestaurant.address2 = `${response[i].boro}, NY, ${response[i].zipcode}`
+                    allData.push(thisRestaurant)
+                }
+
+                // clears the cards
+                $("#resturant-cards").empty()
+
+                //for the length of the array will use the createCard function to create the cards
+                allData.forEach(element => {
+                    createCard(element, i)
+                    i += 1
+                });
+
+                $("#nav-input").val("")
+            })
+        }
     })
 
     $(document).on("click", ".card", function() {
