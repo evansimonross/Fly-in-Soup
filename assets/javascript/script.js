@@ -22,10 +22,10 @@ $(function() {
     // delete then creates the cards in HTML
     let createCard = (obj, num) => {
         $("#resturant-cards").append($('<div class="card col-xl-4 col-lg-6 col-md-4">').append($("<div>").addClass("card-body").attr("id",num)))
+        $(`#${num}`).append($(`<img class="mini-grade" src="assets/images/grade-${obj.grade}.png">`))
         $(`#${num}`).append($(`<h5 class="card-title">${obj.dba}</h5>`))
         $(`#${num}`).append($(`<h6 class="add1 card-subtitle mb-2 text-muted"> ${obj.address1}</h6>`))
         $(`#${num}`).append($(`<h6 class="add2 card-subtitle mb-2 text-muted"> ${obj.address2}</h6>`))
-        $(`#${num}`).append($(`<p class="grade card-text"> Grade: ${obj.grade}</p>`))
         $(`#${num}`).append($(`<p class="v-icon card-text"> Violation Code: ${obj.violation_code}</p>`))
         $(`#${num}`).attr('data-record-date', obj["record_date"])
         $(`#${num}`).attr('data-inspection-date', obj["inspection_date"])
@@ -98,7 +98,7 @@ $(function() {
     $(document).on("click", ".card", function() {
         let resturantName = $(this).find(".card-title").text()
         let fullAddress = $(this).find(".add1").text() + " " + $(this).find(".add2").text()
-        let grade = $(this).find(".grade").text()
+        let grade = $(this).find(".mini-grade").attr('src');
         let vcode = $(this).find(".v-icon").text()
 
         let index = allData.findIndex(x => x.name === resturantName)
@@ -106,16 +106,13 @@ $(function() {
 
         $("#modal-name").text(resturantName)
         
-        ///////////////////////// need to replace with real map ////////////////////////////
-        $(".modal-body").html($('<div class="text-center"><img id="modal-map" src="assets/images/modal-map.png" alt="map"></div>'))
+        $(".modal-body").html($(`<div class="text-center"><img id="modal-grade" src="${grade}" alt="map"></div>`))
         $(".modal-body").append($(`<h6 class="text-center text-muted">${fullAddress}</h6>`))
         $(".modal-body").append($(`<div class="row modal-row"><div class="col-md-6"><p><strong>Grade:</strong> ${grade}</p></div><div class="col-md-6"><p><strong>Violation Code:</strong> ${vcode}</p></div></div>`))
         
         // more info part
         $(".modal-body").append($("<h5>").text("Additional Information"))
         $(".modal-body").append($("<ul>").addClass("more-info"))
-
-        ////////////////////////////////////////////////////////////////////////////////////////////
         
         $(".more-info").append($("<li>").text("Cuisine: " + $(this).find(".card-body").attr("data-cuisine")))
         $(".more-info").append($("<li>").text("Record Date: " + $(this).find(".card-body").attr("data-record-date")))
