@@ -79,14 +79,19 @@ h1 {
 }
 
 /* map info -- need to change img to ??? when map is created */
-#map img {
+#map-img {
     height: 100%;
     float: right;
 }
 
-#modal-map {
-    width: 80%;
+#modal-grade {
+    width: 50%;
     margin: 0 auto;
+}
+
+.mini-grade{
+    width: 65px;
+    float: right;
 }
 
 #modal-name {
