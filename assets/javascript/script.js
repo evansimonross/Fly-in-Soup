@@ -30,19 +30,14 @@ $(function() {
             .setLngLat([-73.9840, 40.7549])
             .addTo(map);
 
+            marker1 = new mapboxgl.Marker()
+            .setLngLat([-73.9841, 40.7549])
+            .addTo(map);
 
-            // GeoJSON :
-            // {
-            //     "geometry": {
-            //       "coordinates": [
-            //         -80.21321961619319,
-            //         40.12941047087537
-            //       ],
-            //       "type": "Point"
-            //     },
-            //     "type": "Feature",
-            //     "properties": {}
-            //   }
+            marker2 = new mapboxgl.Marker()
+            .setLngLat([-73.9842, 40.7549])
+            .addTo(map);
+
 
     // delete then creates the cards in HTML
     let createCard = (obj, num) => {
