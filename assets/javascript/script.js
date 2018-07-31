@@ -1,6 +1,3 @@
-// change color of the sstyle box to equal the grade
-
-
 // global variable to hold user's geolocation
 let latitude
 let longitude
@@ -24,7 +21,7 @@ $(function() {
         }
     }
     getLocation();
-    
+
 
     marker = new mapboxgl.Marker()
             .setLngLat([-73.9840, 40.7549])
@@ -77,6 +74,36 @@ $(function() {
         }      
         return queryURL + i
     }
+
+    let getAllData = (queryURL) => {
+        $.ajax({
+            url: queryURL,
+            method: "GET",
+            data: {
+                "$where": "grade IS NOT NULL", // Prevents results with undefined grades from showing up in results.
+                "$$app_token" : "jOHHqdrBMVMNGmFWFLpWE22PP" // API token speeds up API retreval speed
+        }
+        }).then(function(response) {
+
+            // creates the data array
+            for(let i = 0; i < response.length; i++) {
+                var thisRestaurant = response[i];
+                thisRestaurant.address1 = `${response[i].building} ${response[i].street}`
+                thisRestaurant.address2 = `${response[i].boro}, NY, ${response[i].zipcode}`
+                allData.push(thisRestaurant)
+            }
+
+            $("#resturant-cards").empty()
+
+            allData.forEach(element => {
+                createCard(element, i)
+                i += 1
+            });
+
+            $("#nav-input").val("")
+        })
+
+    }
     
 
     let getResturantList = (lat, long) => {
@@ -91,87 +118,34 @@ $(function() {
             for(let i = 0; i < data.length; i++){
                 currentRestList.push(data[i].restaurant.name)
             }
+
             allData = []
 
             currentRestList.forEach(element => {
-                
+
                 element = element.toUpperCase()
                 var queryURL = `https://data.cityofnewyork.us/resource/9w7m-hzhe.json?dba=${element}`
-
-                $.ajax({
-                    url: queryURL,
-                    method: "GET",
-                    data: {
-                        "$where": "grade IS NOT NULL", // Prevents results with undefined grades from showing up in results.
-                        "$$app_token" : "jOHHqdrBMVMNGmFWFLpWE22PP" // API token speeds up API retreval speed
-                }
-                }).then(function(response) {
-                    // creates the data array
-                    for(let i = 0; i < response.length; i++) {
-                        var thisRestaurant = response[i];
-                        thisRestaurant.address1 = `${response[i].building} ${response[i].street}`
-                        thisRestaurant.address2 = `${response[i].boro}, NY, ${response[i].zipcode}`
-                        allData.push(thisRestaurant)
-                    }
-
-                    // clears the cards
-                    $("#resturant-cards").empty()
-
-                    //for the length of the array will use the createCard function to create the cards
-                    allData.forEach(element => {
-                        createCard(element, i)
-                        i += 1
-                    });
-
-                    $("#nav-input").val("")
-                })
+                
+                getAllData(queryURL)
             })
-              
           })
     }
+
+
     
     // API search btn
     $("#nav-search").on("click", function(event) {
         event.preventDefault()
-        var queryParam = $("#nav-input").val().trim()
-        if (queryParam === "Current Location") {
-            let restList
+        var input = $("#nav-input").val().trim()
+        if (input === "Current Location") {
+            getLocation()
+
             getResturantList(latitude, longitude)
 
         } else {
-            let queryURL = buildQueryURL()
+            let queryURL = buildQueryURL(input)
 
-            $.ajax({
-                url: queryURL,
-                method: "GET",
-                data: {
-                    "$limit" : 20,
-                    "$where": "grade IS NOT NULL", // Prevents results with undefined grades from showing up in results.
-                    "$$app_token" : "jOHHqdrBMVMNGmFWFLpWE22PP" // API token speeds up API retreval speed
-              }
-            }).then(function(response) {
-                // clears the data array
-                allData = []
-
-                // creates the data array
-                for(let i = 0; i < response.length; i++) {
-                    var thisRestaurant = response[i];
-                    thisRestaurant.address1 = `${response[i].building} ${response[i].street}`
-                    thisRestaurant.address2 = `${response[i].boro}, NY, ${response[i].zipcode}`
-                    allData.push(thisRestaurant)
-                }
-
-                // clears the cards
-                $("#resturant-cards").empty()
-
-                //for the length of the array will use the createCard function to create the cards
-                allData.forEach(element => {
-                    createCard(element, i)
-                    i += 1
-                });
-
-                $("#nav-input").val("")
-            })
+            getAllData(queryURL)
         }
     })
 
