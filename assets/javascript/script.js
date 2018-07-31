@@ -116,15 +116,16 @@ $(function() {
             var currentRestList = []
                 
             for(let i = 0; i < data.length; i++){
-                currentRestList.push(data[i].restaurant.name)
+                currentRestList.push(data[i].restaurant)
             }
 
             allData = []
 
             currentRestList.forEach(element => {
 
-                element = element.toUpperCase()
-                var queryURL = `https://data.cityofnewyork.us/resource/9w7m-hzhe.json?dba=${element}`
+                name = element.name.toUpperCase()
+                building = element.location.address.substring(0,element.location.address.indexOf(" "))
+                var queryURL = `https://data.cityofnewyork.us/resource/9w7m-hzhe.json?dba=${name}&building=${building}`
                 
                 getAllData(queryURL)
             })
@@ -144,7 +145,7 @@ $(function() {
 
         } else {
             let queryURL = buildQueryURL(input)
-
+            allData = []
             getAllData(queryURL)
         }
     })
@@ -184,4 +185,22 @@ var toGeocode = (address) => {
         url: queryUrl,
         method: "GET",
     })
+}
+
+// check which date is newer (YYYY-MM-DD format)
+let isNewerThan = (date1, date2) => {
+    let date1Year = parseInt(date1.substring(0,4))
+    let date2Year = parseInt(date2.substring(0,4));
+    if(date1Year > date2Year) { return true }
+    if(date2Year > date1Year) { return false }
+
+    let date1Month = parseInt(date1.substring(5,7));
+    let date2Month = parseInt(date2.substring(5,7));
+    if(date1Month > date2Month) { return true }
+    if(date2Month > date1Month) { return false }
+
+    let date1Day = parseInt(date1.substring(8,10));
+    let date2Day = parseInt(date2.substring(8,10));
+    if(date1Day > date2Day) { return true }
+    if(date2Day > date1Day) { return false }
 }
