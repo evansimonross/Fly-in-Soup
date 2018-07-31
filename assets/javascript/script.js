@@ -24,6 +24,20 @@ $(function() {
         }
     }
     getLocation();
+    
+
+    marker = new mapboxgl.Marker()
+            .setLngLat([-73.9840, 40.7549])
+            .addTo(map);
+
+            marker1 = new mapboxgl.Marker()
+            .setLngLat([-73.9841, 40.7549])
+            .addTo(map);
+
+            marker2 = new mapboxgl.Marker()
+            .setLngLat([-73.9842, 40.7549])
+            .addTo(map);
+
 
     // delete then creates the cards in HTML
     let createCard = (obj, num) => {
