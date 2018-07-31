@@ -44,30 +44,28 @@ $(function() {
     }
 
     // build query
-    let buildQueryURL = () => {
+    let buildQueryURL = (i) => {
         var queryURL = "https://data.cityofnewyork.us/resource/9w7m-hzhe.json"
 
-        var queryParam = $("#nav-input").val().trim()
-    
-        if(/\d{5}/.test(queryParam)) {
+        if(/\d{5}/.test(i)) {
             // zipcode
-            queryParam = `?zipcode=${queryParam}`
-        } else if (/[a-zA-Z]/.test(queryParam)) {
-            queryParam = queryParam.toUpperCase()
+            i = `?zipcode=${i}`
+        } else if (/[a-zA-Z]/.test(i)) {
+            i = i.toUpperCase()
 
-            if (queryParam === "MANHATTAN" || queryParam === "BROOKLYN" || queryParam === "QUEENS" || queryParam === "BRONX" || queryParam === "STATEN ISLAND") {
+            if (i === "MANHATTAN" || i === "BROOKLYN" || i === "QUEENS" || i === "BRONX" || i === "STATEN ISLAND") {
                 // boro
-                queryParam = `?boro=${queryParam}`
+                i = `?boro=${i}`
             } else {
                 // resturant name
-                queryParam = `?dba=${queryParam}`
+                i = `?dba=${i}`
             } 
         }      
-        return queryURL + queryParam
+        return queryURL + i
     }
+    
 
     let getResturantList = (lat, long) => {
-        
         var queryURL = `https://developers.zomato.com/api/v2.1/geocode?apikey=625bdeced0acd6c03b8a61c2593a9093&lat=${lat}&lon=${long}`
         $.ajax({
             url: queryURL,
@@ -121,7 +119,8 @@ $(function() {
     // API search btn
     $("#nav-search").on("click", function(event) {
         event.preventDefault()
-        if ($("#nav-input").val().trim() === "Current Location") {
+        var queryParam = $("#nav-input").val().trim()
+        if (queryParam === "Current Location") {
             let restList
             getResturantList(latitude, longitude)
 
