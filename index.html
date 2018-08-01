@@ -19,25 +19,12 @@
 <body>
 
     <!-- nav bar -->
-    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
         <!-- logo -->
         <a class="navbar-brand" href="#">
             <img src="assets/images/fly_soup.png" alt="logo">
             <h3>Fly-in-Soup</h3>
         </a>
-        <!-- search bar -->
-        <form class="form-inline my-2 my-lg-0">
-            <input id="nav-input" class="form-control mr-sm-2" type="search" placeholder="Zipcode, Boro or Resturant" list="options" name="options">
-            <datalist id="options">
-                <option value="Current Location">
-                <option value="MANHATTAN">
-                <option value="BROOKLYN">
-                <option value="QUEENS">
-                <option value="BRONX">
-                <option value="STATEN ISLAND">
-            </datalist>
-            <button id="nav-search" class="btn btn-outline-secondary my-2 my-sm-0" type="submit">Search</button>
-        </form>
         
         <!-- toggle btn when window is small -->
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
@@ -47,8 +34,30 @@
         <!-- other pages -->
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item active"><a href="#" class="nav-link">Home</a> </li>
-                <li class="nav-item"><a href="about.html" class="nav-link">About</a> </li>
+                <li class="nav-item">
+                    <!-- search bar -->
+                    <form class="form-inline my-2 my-lg-0">
+                        <input id="nav-input" class="form-control mr-sm-2" type="search" placeholder="Zipcode, Boro or Resturant" list="options" name="options">
+                        <datalist id="options">
+                            <option value="Current Location">
+                            <option value="MANHATTAN">
+                            <option value="BROOKLYN">
+                            <option value="QUEENS">
+                            <option value="BRONX">
+                            <option value="STATEN ISLAND">
+                        </datalist>
+                        <button id="nav-search" class="btn btn-outline-secondary my-2 my-sm-0" type="submit">Search</button>
+                    </form>
+                </li>
+                <li class="nav-item active">
+                    <a href="#" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="about.html" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="login.html" class="nav-link">Sign-in/ Log-in</a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -57,19 +66,19 @@
     <div class="container-fluid">
         <!-- remove image and place map here -->
         <div class="float-md-none float-lg-right map">
-            <div id='map' style='width: 800px; height: 1000px;'></div>
-                        <script>
-                                mapboxgl.accessToken = 'pk.eyJ1IjoianJvemU4OCIsImEiOiJjams1bDI2MjAxbHQzM3BsZTV0eDEyOHV3In0.QZaTrfBl6_lWiHHSg8FU8g';
-                                        var map = new mapboxgl.Map({
-                                            container: 'map',
-                                            style: 'mapbox://styles/jroze88/cjk5oti5118x12smszye7x1o0',
-                                            showUserLocation: true,
-                                            zoom: 13,
-                                            center: [-73.9840, 40.7549]
+            <!-- <div id='map' style='width: 800px; height: 1000px;'></div> -->
+            <div id='map' style='width: 690px; height: 890px;' class="float-md-none float-lg-right map"></div>
+            <script>
+                mapboxgl.accessToken = 'pk.eyJ1IjoianJvemU4OCIsImEiOiJjams1bDI2MjAxbHQzM3BsZTV0eDEyOHV3In0.QZaTrfBl6_lWiHHSg8FU8g';
+                    var map = new mapboxgl.Map({
+                        container: 'map',
+                        style: 'mapbox://styles/jroze88/cjk5oti5118x12smszye7x1o0',
+                        showUserLocation: true,
+                        zoom: 13,
+                        center: [-73.9840, 40.7549]
 
-    });
-                       
-                        </script>
+                    });
+            </script>
         </div>
 
         <!-- the resturant cards go here -->
