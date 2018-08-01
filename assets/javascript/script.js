@@ -37,7 +37,8 @@ $(function () {
 
     // delete then creates the cards in HTML
     let createCard = (obj, num) => {
-        $("#resturant-cards").append($('<div class="card col-xl-4 col-lg-6 col-md-4">').append($("<div>").addClass("card-body").attr("id", num)))
+        $("#resturant-cards").append($('<div class="card col-xl-4 col-lg-6 col-md-4">').append($("<div>").addClass("card-body mini-card").attr("id",num)))
+
         $(`#${num}`).append($(`<img class="mini-grade" src="assets/images/grade-${obj.grade}.png">`))
         $(`#${num}`).append($(`<h5 class="card-title">${obj.dba}</h5>`))
         $(`#${num}`).append($(`<h6 class="add1 card-subtitle mb-2 text-muted"> ${obj.address1}</h6>`))
@@ -174,6 +175,22 @@ $(function () {
         $('#myModal').modal('show')
 
     })
+
+    // Resizing the map
+    var mapWidth = $(".map").width()
+    var mapHeight = $(".map").height() 
+    $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
+
+    $(window).resize(function(){ 
+        var winWidth = $(window).width()
+        var winHeight = $(window).height()
+
+        if (winWidth >= 990) {
+            $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
+        } else {
+            $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight/2}px;`)
+        }
+    });
 })
 
 // geocoding an address function. 
