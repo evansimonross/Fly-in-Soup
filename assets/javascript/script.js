@@ -39,17 +39,7 @@ $(function () {
                 userLocation = position
                 longitude = parseFloat(userLocation.coords.longitude).toFixed(4)
                 latitude = parseFloat(userLocation.coords.latitude).toFixed(4)
-
-                marker = new mapboxgl.Marker()
-                    .setLngLat([longitude, latitude])
-                    .addTo(map)
-
-                markers.push(marker)
-
-                map.flyTo({
-                    center: [longitude, latitude],
-                    zoom: 15
-                })
+                centerAt(longitude, latitude, 15)
             })
         } else {
             console.log("Could not access user's location")
@@ -104,12 +94,14 @@ $(function () {
 
         if (/\d{5}/.test(i)) {
             // zipcode
+            centerAt(getCoordsFromZip(i)[0], getCoordsFromZip(i)[1], 15)
             i = `?zipcode=${i}`
         } else if (/[a-zA-Z]/.test(i)) {
             i = i.toUpperCase()
 
             if (i === "MANHATTAN" || i === "BROOKLYN" || i === "QUEENS" || i === "BRONX" || i === "STATEN ISLAND") {
                 // boro
+                centerAt(getCoordsFromBorough(i)[0], getCoordsFromBorough(i)[1], 11)
                 i = `?boro=${i}`
             } else {
                 // restaurant name
@@ -198,11 +190,12 @@ $(function () {
         removeMarkers()
         var input = $("#nav-input").val().trim()
         if (input === "Current Location") {
+            centerAt(longitude, latitude, 15)
             getRestaurantList(latitude, longitude)
-
         }
         else if (input === "Favorites") {
             allData = []
+            centerAt(longitude, latitude, 10)
             getRestaurantsFromArray(favorites)
         }
         else {
@@ -364,9 +357,27 @@ var toMixedCase = (string) => {
     return newString
 }
 
+// remove all markers from the map 
 var removeMarkers = () => {
-    markers.forEach(function(element){
+    markers.forEach(function (element) {
         element.remove()
     })
     markers = []
+}
+
+// center map at a long/lat position and add a marker there
+var centerAt = (long, lat, zoom) => {
+    try{
+        marker = new mapboxgl.Marker()
+            .setLngLat([long, lat])
+            .addTo(map)
+
+        markers.push(marker)
+
+        map.flyTo({
+            center: [long, lat],
+            zoom: zoom
+        })
+    }
+    catch(err){ }
 }
