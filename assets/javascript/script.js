@@ -86,12 +86,14 @@ $(function () {
         $(`#${num}`).attr('data-violation-code', obj["violation_code"])
         $(`#${num}`).attr('data-violation-description', obj["violation_description"])
         $(`#${num}`).attr('data-cuisine', obj["cuisine_description"])
+
+        // add markers to the map for each restaurant card displayed
         toGeocode(obj.address1 + " " + obj.address2).then(function (response) {
-            $(`#${num}`).attr('data-longitude', response.bbox[0])
-            $(`#${num}`).attr('data-latitude', response.bbox[1])
+            // $(`#${num}`).attr('data-longitude', response.bbox[0])
+            // $(`#${num}`).attr('data-latitude', response.bbox[1])
 
             var popup = new mapboxgl.Popup({ offset: 25 })
-                .setHTML(document.getElementById(num).innerHTML);
+                .setHTML($(`#${num}`).parent().html());
 
             // Create a marker for the restaurant. Its color indicates its grade
             var marker = new mapboxgl.Marker()
@@ -100,9 +102,6 @@ $(function () {
                 .addTo(map)
             marker.num = num
             $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', gradeColor)
-            marker.addEventListener('click', () => {
-                alert(obj.dba.toUpperCase())
-            })
             markers.push(marker)
         })
     }
@@ -224,7 +223,7 @@ $(function () {
     })
 
     // display modal when a card is clicked
-    $(document).on("click", ".card", function (event) {
+    $(document).on("click", ".mini-card", function (event) {
 
         // behavior if part of the card other than the favorite icon is clicked
         if ($(event.target)[0].className.indexOf("fa-heart") === -1) {
