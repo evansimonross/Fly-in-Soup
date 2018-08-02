@@ -51,10 +51,13 @@ body, html {
     left: 300px;
 }
 
-
-
+#map {
+    position: absolute;
+    left: 0;
+}
 
 .map {
+    position: relative;
     width: 50%;
     height: 100%;
     padding: 5px;
@@ -66,7 +69,6 @@ body, html {
     height: 100%;
     padding: 10px;
     overflow: auto;
-    margin-left: -50px;
 }
 
 /* map info -- need to change img to ??? when map is created */
@@ -212,17 +214,26 @@ body, html {
 
 /* login signup page */
 
-.log-card {
-    margin: 0 auto;
-    width: 50%;
-    min-width: 300px;
-    box-shadow: var(--boxshadow);
-    cursor: pointer;
+.mdl-button--raised.mdl-button--colored {
+    border: 2px solid #6c757d;
+    background: transparent;
+    color: #6c757d;
+    box-shadow: none;
+    border-radius: .25rem;
     transition: var(--trans);
 }
 
-.log-card .card-body {
-    padding-bottom: 50px;
+.mdl-button--raised.mdl-button--colored:hover {
+    cursor: pointer;
+    box-shadow: var(--boxshadow);
+    background: #6c757d;
+    color: #fff;
+}
+
+.mdl-button--primary.mdl-button--primary {
+    color:#6c757d;
+    border-radius: .25rem;
+    transition: var(--trans);
 }
 
 #to-signup {
@@ -252,6 +263,12 @@ body, html {
 
     .nav-item .form-inline {
         position: inherit;
+    }
+
+    #bread {
+        width: 300px;
+        top: 600px;
+        left: 10px;
     }
 
 }
@@ -292,8 +309,6 @@ body, html {
     }
 
     #bread {
-        width: 200px;
-        top: 450px;
-        left: 10px;
+        display: none;
     }
 }
