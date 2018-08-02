@@ -8,25 +8,16 @@ var mainApp = {}
 var favorites = JSON.parse(localStorage.getItem("favorites")) || []
 
 $(function () {
-    // check if user is logged in
-    var uid = null
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-          uid = user.id
-          console.log("hello");
-          
-          $(".signin").addClass("disappear")
-          $(".signout").removeClass("disappear")
-        } else {
-            uid = null
-        }
-    });
-
-    $(".signout a").on("click", function() {
-        firebase.auth().signOut()
-        $(".signin").removeClass("disappear")
-        $(".signout").addClass("disappear")
-    })
+    // var config = {
+    //     apiKey: "AIzaSyCH953RAujY3nOz1LuoPDVXOsXEVTj5nd4",
+    //     authDomain: "fly-in-soup.firebaseapp.com",
+    //     databaseURL: "https://fly-in-soup.firebaseio.com",
+    //     projectId: "fly-in-soup",
+    //     storageBucket: "",
+    //     messagingSenderId: "1016106732008"
+    // };
+    // firebase.initializeApp(config);
+    // var database = firebase.database()
 
     // holds all the data from the API search
     let i = 0
@@ -246,6 +237,9 @@ $(function () {
                 $(event.target).addClass('hidden')
             }
             localStorage.setItem("favorites", JSON.stringify(favorites));
+            faveRef.child(uid).set(favorites)
+            console.log(favorites);
+            
         }
 
     })
@@ -258,8 +252,6 @@ $(function () {
     $(window).resize(function () {
         var winWidth = $(window).width()
         var winHeight = $(window).height()
-        console.log(winWidth);
-        
 
         if (winWidth >= 940) {
             $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
