@@ -53,6 +53,16 @@ $(function () {
 
         // grade
         $(`#${num}`).append($(`<img class="mini-grade" src="assets/images/grade-${obj.grade}.png">`))
+        var gradeColor = "#a6a6a6"
+        if (obj.grade === "A") {
+            gradeColor = "#2e56a4"
+        }
+        else if (obj.grade === "B") {
+            gradeColor = "#5e9f43"
+        }
+        else if (obj.grade === "C") {
+            gradeColor = "#f5883f"
+        }
 
         // restaurant name
         $(`#${num}`).append($(`<h5 class="card-title">${obj.dba.toUpperCase()}</h5>`))
@@ -79,10 +89,20 @@ $(function () {
         toGeocode(obj.address1 + " " + obj.address2).then(function (response) {
             $(`#${num}`).attr('data-longitude', response.bbox[0])
             $(`#${num}`).attr('data-latitude', response.bbox[1])
+
+            var popup = new mapboxgl.Popup({ offset: 25 })
+                .setHTML(document.getElementById(num).innerHTML);
+
+            // Create a marker for the restaurant. Its color indicates its grade
             var marker = new mapboxgl.Marker()
                 .setLngLat([response.bbox[0], response.bbox[1]])
+                .setPopup(popup)
                 .addTo(map)
             marker.num = num
+            $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', gradeColor)
+            marker.addEventListener('click', () => {
+                alert(obj.dba.toUpperCase())
+            })
             markers.push(marker)
         })
     }
@@ -367,10 +387,12 @@ var removeMarkers = () => {
 
 // center map at a long/lat position and add a marker there
 var centerAt = (long, lat, zoom) => {
-    try{
+    try {
         marker = new mapboxgl.Marker()
             .setLngLat([long, lat])
             .addTo(map)
+
+        $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', '#dd3366')
 
         markers.push(marker)
 
@@ -379,5 +401,5 @@ var centerAt = (long, lat, zoom) => {
             zoom: zoom
         })
     }
-    catch(err){ }
+    catch (err) { }
 }
