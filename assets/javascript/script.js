@@ -39,17 +39,7 @@ $(function () {
                 userLocation = position
                 longitude = parseFloat(userLocation.coords.longitude).toFixed(4)
                 latitude = parseFloat(userLocation.coords.latitude).toFixed(4)
-
-                marker = new mapboxgl.Marker()
-                    .setLngLat([longitude, latitude])
-                    .addTo(map)
-
-                markers.push(marker)
-
-                map.flyTo({
-                    center: [longitude, latitude],
-                    zoom: 15
-                })
+                centerAt(longitude, latitude, 15)
             })
         } else {
             console.log("Could not access user's location")
@@ -63,6 +53,16 @@ $(function () {
 
         // grade
         $(`#${num}`).append($(`<img class="mini-grade" src="assets/images/grade-${obj.grade}.png">`))
+        var gradeColor = "#a6a6a6"
+        if (obj.grade === "A") {
+            gradeColor = "#2e56a4"
+        }
+        else if (obj.grade === "B") {
+            gradeColor = "#5e9f43"
+        }
+        else if (obj.grade === "C") {
+            gradeColor = "#f5883f"
+        }
 
         // restaurant name
         $(`#${num}`).append($(`<h5 class="card-title">${obj.dba.toUpperCase()}</h5>`))
@@ -86,13 +86,22 @@ $(function () {
         $(`#${num}`).attr('data-violation-code', obj["violation_code"])
         $(`#${num}`).attr('data-violation-description', obj["violation_description"])
         $(`#${num}`).attr('data-cuisine', obj["cuisine_description"])
+
+        // add markers to the map for each restaurant card displayed
         toGeocode(obj.address1 + " " + obj.address2).then(function (response) {
-            $(`#${num}`).attr('data-longitude', response.bbox[0])
-            $(`#${num}`).attr('data-latitude', response.bbox[1])
+            // $(`#${num}`).attr('data-longitude', response.bbox[0])
+            // $(`#${num}`).attr('data-latitude', response.bbox[1])
+
+            var popup = new mapboxgl.Popup({ offset: 25 })
+                .setHTML($(`#${num}`).parent().html());
+
+            // Create a marker for the restaurant. Its color indicates its grade
             var marker = new mapboxgl.Marker()
                 .setLngLat([response.bbox[0], response.bbox[1]])
+                .setPopup(popup)
                 .addTo(map)
             marker.num = num
+            $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', gradeColor)
             markers.push(marker)
         })
     }
@@ -104,12 +113,14 @@ $(function () {
 
         if (/\d{5}/.test(i)) {
             // zipcode
+            centerAt(getCoordsFromZip(i)[0], getCoordsFromZip(i)[1], 15)
             i = `?zipcode=${i}`
         } else if (/[a-zA-Z]/.test(i)) {
             i = i.toUpperCase()
 
             if (i === "MANHATTAN" || i === "BROOKLYN" || i === "QUEENS" || i === "BRONX" || i === "STATEN ISLAND") {
                 // boro
+                centerAt(getCoordsFromBorough(i)[0], getCoordsFromBorough(i)[1], 11)
                 i = `?boro=${i}`
             } else {
                 // restaurant name
@@ -198,11 +209,12 @@ $(function () {
         removeMarkers()
         var input = $("#nav-input").val().trim()
         if (input === "Current Location") {
+            centerAt(longitude, latitude, 15)
             getRestaurantList(latitude, longitude)
-
         }
         else if (input === "Favorites") {
             allData = []
+            centerAt(longitude, latitude, 10)
             getRestaurantsFromArray(favorites)
         }
         else {
@@ -211,7 +223,7 @@ $(function () {
     })
 
     // display modal when a card is clicked
-    $(document).on("click", ".card", function (event) {
+    $(document).on("click", ".mini-card", function (event) {
 
         // behavior if part of the card other than the favorite icon is clicked
         if ($(event.target)[0].className.indexOf("fa-heart") === -1) {
@@ -229,7 +241,7 @@ $(function () {
             $(".modal-body").append($(`<h6 class="text-center text-muted">${fullAddress}</h6>`))
 
             // more info part
-            var card = $(this).find(".card-body")
+            var card = $(this)
             $(".modal-body").append($("<ul>").addClass("more-info"))
             $(".more-info").append($(`<li><b>Cuisine</b>: ${card.attr("data-cuisine")}</li>`))
             $(".more-info").append($(`<li><b>Violation Code</b>: ${card.attr("data-violation-code")}</li>`))
@@ -364,9 +376,29 @@ var toMixedCase = (string) => {
     return newString
 }
 
+// remove all markers from the map 
 var removeMarkers = () => {
-    markers.forEach(function(element){
+    markers.forEach(function (element) {
         element.remove()
     })
     markers = []
+}
+
+// center map at a long/lat position and add a marker there
+var centerAt = (long, lat, zoom) => {
+    try {
+        marker = new mapboxgl.Marker()
+            .setLngLat([long, lat])
+            .addTo(map)
+
+        $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', '#dd3366')
+
+        markers.push(marker)
+
+        map.flyTo({
+            center: [long, lat],
+            zoom: zoom
+        })
+    }
+    catch (err) { }
 }
