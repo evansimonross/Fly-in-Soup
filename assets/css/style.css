@@ -109,9 +109,15 @@ body, html {
     padding: 15px;
     border: 1px solid #eee;
     border-radius: 5px;
+    background: #fff;
 }
 
-.card:hover .mini-card {
+.mapboxgl-popup-content{
+    background: #0000;
+    box-shadow: none;
+}
+
+.mini-card:hover {
     box-shadow: var(--boxshadow);
     cursor: pointer;
     transition: var(--trans);
