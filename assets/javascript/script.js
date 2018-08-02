@@ -4,21 +4,11 @@ var longitude
 var userLocation
 var loggedIn = false
 var allData = []
+var markers = []
 var mainApp = {}
 var favorites = JSON.parse(localStorage.getItem("favorites")) || []
 
 $(function () {
-    // var config = {
-    //     apiKey: "AIzaSyCH953RAujY3nOz1LuoPDVXOsXEVTj5nd4",
-    //     authDomain: "fly-in-soup.firebaseapp.com",
-    //     databaseURL: "https://fly-in-soup.firebaseio.com",
-    //     projectId: "fly-in-soup",
-    //     storageBucket: "",
-    //     messagingSenderId: "1016106732008"
-    // };
-    // firebase.initializeApp(config);
-    // var database = firebase.database()
-
     // holds all the data from the API search
     let i = 0
 
@@ -32,8 +22,10 @@ $(function () {
 
                 marker = new mapboxgl.Marker()
                     .setLngLat([longitude, latitude])
-                    .addTo(map);
-                
+                    .addTo(map)
+
+                markers.push(marker)
+
                 map.flyTo({
                     center: [longitude, latitude],
                     zoom: 15
@@ -43,20 +35,7 @@ $(function () {
             console.log("Could not access user's location")
         }
     }
-    getLocation();
-
-    // marker = new mapboxgl.Marker()
-    //     .setLngLat([-73.9840, 40.7549])
-    //     .addTo(map);
-
-    // marker1 = new mapboxgl.Marker()
-    //     .setLngLat([-73.9841, 40.7549])
-    //     .addTo(map);
-
-    // marker2 = new mapboxgl.Marker()
-    //     .setLngLat([-73.9842, 40.7549])
-    //     .addTo(map);
-
+    getLocation()
 
     // delete then creates the cards in HTML
     let createCard = (obj, num) => {
@@ -88,13 +67,19 @@ $(function () {
         $(`#${num}`).attr('data-violation-description', obj["violation_description"])
         $(`#${num}`).attr('data-cuisine', obj["cuisine_description"])
         toGeocode(obj.address1 + " " + obj.address2).then(function (response) {
-            $(`#${num}`).attr('data-longitude', response.bbox[0]);
-            $(`#${num}`).attr('data-latitude', response.bbox[1]);
+            $(`#${num}`).attr('data-longitude', response.bbox[0])
+            $(`#${num}`).attr('data-latitude', response.bbox[1])
+            var marker = new mapboxgl.Marker()
+                .setLngLat([response.bbox[0], response.bbox[1]])
+                .addTo(map)
+            marker.num = num
+            markers.push(marker)
         })
     }
 
     // build query
     let buildQueryURL = (i) => {
+        allData = []
         var queryURL = "https://data.cityofnewyork.us/resource/9w7m-hzhe.json"
 
         if (/\d{5}/.test(i)) {
@@ -108,10 +93,13 @@ $(function () {
                 i = `?boro=${i}`
             } else {
                 // restaurant name
-                i = `?dba=${i}`
+                let restaurantName = i
+                i = `?dba=${restaurantName}`
+                getAllData(queryURL + i)
+                i = `?dba=${toMixedCase(restaurantName)}`
             }
         }
-        return queryURL + i
+        getAllData(queryURL + i)
     }
 
     // get data from health inspection api based on query url
@@ -127,7 +115,7 @@ $(function () {
 
             // creates the data array
             for (let i = 0; i < response.length; i++) {
-                var thisRestaurant = response[i];
+                var thisRestaurant = response[i]
                 thisRestaurant.address1 = `${response[i].building} ${response[i].street}`
                 thisRestaurant.address2 = `${response[i].boro}, NY, ${response[i].zipcode}`
                 allData.push(thisRestaurant)
@@ -139,15 +127,33 @@ $(function () {
             allData.forEach(element => {
                 createCard(element, i)
                 i += 1
-            });
+            })
 
             $("#nav-input").val("")
         })
 
     }
 
+    // display all restaurants from either the user's favorites array or zomato's array
+    let getRestaurantsFromArray = (array) => {
+        array.forEach(element => {
+
+            name = element.name.toUpperCase()
+            building = element.location.address.substring(0, element.location.address.indexOf(" ")) || ""
+
+            // search the database for uppercase restaurant name
+            var queryURLUpper = `https://data.cityofnewyork.us/resource/9w7m-hzhe.json?dba=${name}&building=${building}`
+            getAllData(queryURLUpper)
+
+            // search the database for mixed case restaurant name
+            var queryURLMixed = `https://data.cityofnewyork.us/resource/9w7m-hzhe.json?dba=${toMixedCase(name)}&building=${building}`
+            getAllData(queryURLMixed)
+
+        })
+    }
+
     // get list of nearby restaurants from zomato api
-    let getrestaurantList = (lat, long) => {
+    let getRestaurantList = (lat, long) => {
         var queryURL = `https://developers.zomato.com/api/v2.1/geocode?apikey=625bdeced0acd6c03b8a61c2593a9093&lat=${lat}&lon=${long}`
         $.ajax({
             url: queryURL,
@@ -162,30 +168,25 @@ $(function () {
 
             allData = []
 
-            currentRestList.forEach(element => {
-
-                name = element.name.toUpperCase()
-                building = element.location.address.substring(0, element.location.address.indexOf(" "))
-                var queryURL = `https://data.cityofnewyork.us/resource/9w7m-hzhe.json?dba=${name}&building=${building}`
-
-                getAllData(queryURL)
-            })
+            getRestaurantsFromArray(currentRestList)
         })
     }
 
     // API search btn
     $("#nav-search").on("click", function (event) {
         event.preventDefault()
+        removeMarkers()
         var input = $("#nav-input").val().trim()
         if (input === "Current Location") {
-            getLocation()
+            getRestaurantList(latitude, longitude)
 
-            getrestaurantList(latitude, longitude)
-
-        } else {
-            let queryURL = buildQueryURL(input)
+        }
+        else if (input === "Favorites") {
             allData = []
-            getAllData(queryURL)
+            getRestaurantsFromArray(favorites)
+        }
+        else {
+            buildQueryURL(input)
         }
     })
 
@@ -197,7 +198,7 @@ $(function () {
 
             let restaurantName = $(this).find(".card-title").text()
             let fullAddress = $(this).find(".add1").text() + " " + $(this).find(".add2").text()
-            let grade = $(this).find(".mini-grade").attr('src');
+            let grade = $(this).find(".mini-grade").attr('src')
 
             let index = allData.findIndex(x => x.name === restaurantName)
 
@@ -231,17 +232,13 @@ $(function () {
                 $(event.target).removeClass('hidden')
             }
             else {
-                favorites.splice(index, 1);
+                favorites.splice(index, 1)
                 $(event.target).removeClass('fas')
                 $(event.target).addClass('far')
                 $(event.target).addClass('hidden')
             }
             localStorage.setItem("favorites", JSON.stringify(favorites));
             faveRef.child(uid).set(favorites)
-            console.log(favorites);
-            
-        }
-
     })
 
     // Resizing the map
@@ -256,9 +253,9 @@ $(function () {
         if (winWidth >= 940) {
             $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
         } else {
-            $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight* .4}px;`)
+            $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight * .4}px;`)
         }
-    });
+    })
 })
 
 // geocoding an address function. 
@@ -288,6 +285,8 @@ let isNewerThan = (date1, date2) => {
     let date2Day = parseInt(date2.substring(8, 10))
     if (date1Day > date2Day) { return true }
     if (date2Day > date1Day) { return false }
+
+    return false
 }
 
 // delete repeats in the data, preserving only the most recent inspection result
@@ -303,7 +302,7 @@ let trimData = () => {
         newestIndex = i
         sameIndices.forEach(function (element) {
             if (isNewerThan(allData[element].inspection_date, allData[newestIndex].inspection_date)) {
-                newestIndex = element;
+                newestIndex = element
             }
         })
         sameIndices.splice(sameIndices.indexOf(newestIndex), 1)
@@ -325,4 +324,28 @@ let indexOfFavorite = (name, building) => {
         }
     }
     return -1
+}
+
+// The NYC health dept database doesn't reliably have restaurant names in uppercase or not, so this function converts from uppercase to mixed case
+var toMixedCase = (string) => {
+    let array = string.split(" ")
+    let newArray = []
+    array.forEach(function (element) {
+        newArray.push(element.substring(0, 1).toUpperCase() + element.substring(1, element.length).toLowerCase())
+    })
+    let newString = ""
+    for (var i = 0; i < newArray.length; i++) {
+        newString += newArray[i]
+        if (i < newArray.length - 1) {
+            newString += " "
+        }
+    }
+    return newString
+}
+
+var removeMarkers = () => {
+    markers.forEach(function(element){
+        element.remove()
+    })
+    markers = []
 }
