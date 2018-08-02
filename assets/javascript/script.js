@@ -2,7 +2,9 @@
 var latitude
 var longitude
 var userLocation
+var loggedIn = false
 var allData = []
+var favorites = JSON.parse(localStorage.getItem("favorites")) || []
 
 $(function () {
     // holds all the data from the API search
@@ -15,6 +17,15 @@ $(function () {
                 userLocation = position
                 longitude = parseFloat(userLocation.coords.longitude).toFixed(4)
                 latitude = parseFloat(userLocation.coords.latitude).toFixed(4)
+
+                marker = new mapboxgl.Marker()
+                    .setLngLat([longitude, latitude])
+                    .addTo(map);
+                
+                map.flyTo({
+                    center: [longitude, latitude],
+                    zoom: 15
+                })
             })
         } else {
             console.log("Could not access user's location")
@@ -22,27 +33,43 @@ $(function () {
     }
     getLocation();
 
-    marker = new mapboxgl.Marker()
-        .setLngLat([-73.9840, 40.7549])
-        .addTo(map);
+    // marker = new mapboxgl.Marker()
+    //     .setLngLat([-73.9840, 40.7549])
+    //     .addTo(map);
 
-    marker1 = new mapboxgl.Marker()
-        .setLngLat([-73.9841, 40.7549])
-        .addTo(map);
+    // marker1 = new mapboxgl.Marker()
+    //     .setLngLat([-73.9841, 40.7549])
+    //     .addTo(map);
 
-    marker2 = new mapboxgl.Marker()
-        .setLngLat([-73.9842, 40.7549])
-        .addTo(map);
+    // marker2 = new mapboxgl.Marker()
+    //     .setLngLat([-73.9842, 40.7549])
+    //     .addTo(map);
 
 
     // delete then creates the cards in HTML
     let createCard = (obj, num) => {
-        $("#resturant-cards").append($('<div class="card col-xl-4 col-lg-6 col-md-4">').append($("<div>").addClass("card-body mini-card").attr("id",num)))
+        $("#restaurant-cards").append($('<div class="card col-xl-4 col-lg-6 col-md-4">').append($("<div>").addClass("card-body mini-card").attr("id", num)))
 
+        // grade
         $(`#${num}`).append($(`<img class="mini-grade" src="assets/images/grade-${obj.grade}.png">`))
-        $(`#${num}`).append($(`<h5 class="card-title">${obj.dba}</h5>`))
-        $(`#${num}`).append($(`<h6 class="add1 card-subtitle mb-2 text-muted"> ${obj.address1}</h6>`))
-        $(`#${num}`).append($(`<h6 class="add2 card-subtitle mb-2 text-muted"> ${obj.address2}</h6>`))
+
+        // restaurant name
+        $(`#${num}`).append($(`<h5 class="card-title">${obj.dba.toUpperCase()}</h5>`))
+
+        // heart icon (already solid + visible if it's already a favorite)
+        let isFavorite = (indexOfFavorite(obj.dba.toUpperCase(), obj.building) != -1)
+        if (isFavorite) {
+            $(`#${num}`).append($(`<i class="fas fa-heart"></i>`))
+        }
+        else {
+            $(`#${num}`).append($(`<i class="hidden far fa-heart"></i>`))
+        }
+
+        // address
+        $(`#${num}`).append($(`<h6 class="add1 card-subtitle mb-2 text-muted">${obj.address1}</h6>`))
+        $(`#${num}`).append($(`<h6 class="add2 card-subtitle mb-2 text-muted">${obj.address2}</h6>`))
+
+        // add'l data
         $(`#${num}`).attr('data-record-date', obj["record_date"])
         $(`#${num}`).attr('data-inspection-date', obj["inspection_date"].substring(0, 10))
         $(`#${num}`).attr('data-violation-code', obj["violation_code"])
@@ -68,7 +95,7 @@ $(function () {
                 // boro
                 i = `?boro=${i}`
             } else {
-                // resturant name
+                // restaurant name
                 i = `?dba=${i}`
             }
         }
@@ -94,7 +121,7 @@ $(function () {
                 allData.push(thisRestaurant)
             }
 
-            $("#resturant-cards").empty()
+            $("#restaurant-cards").empty()
             trimData()
 
             allData.forEach(element => {
@@ -108,7 +135,7 @@ $(function () {
     }
 
     // get list of nearby restaurants from zomato api
-    let getResturantList = (lat, long) => {
+    let getrestaurantList = (lat, long) => {
         var queryURL = `https://developers.zomato.com/api/v2.1/geocode?apikey=625bdeced0acd6c03b8a61c2593a9093&lat=${lat}&lon=${long}`
         $.ajax({
             url: queryURL,
@@ -141,7 +168,7 @@ $(function () {
         if (input === "Current Location") {
             getLocation()
 
-            getResturantList(latitude, longitude)
+            getrestaurantList(latitude, longitude)
 
         } else {
             let queryURL = buildQueryURL(input)
@@ -151,44 +178,70 @@ $(function () {
     })
 
     // display modal when a card is clicked
-    $(document).on("click", ".card", function () {
-        let resturantName = $(this).find(".card-title").text()
-        let fullAddress = $(this).find(".add1").text() + " " + $(this).find(".add2").text()
-        let grade = $(this).find(".mini-grade").attr('src');
+    $(document).on("click", ".card", function (event) {
 
-        let index = allData.findIndex(x => x.name === resturantName)
+        // behavior if part of the card other than the favorite icon is clicked
+        if ($(event.target)[0].className.indexOf("fa-heart") === -1) {
+
+            let restaurantName = $(this).find(".card-title").text()
+            let fullAddress = $(this).find(".add1").text() + " " + $(this).find(".add2").text()
+            let grade = $(this).find(".mini-grade").attr('src');
+
+            let index = allData.findIndex(x => x.name === restaurantName)
 
 
-        $("#modal-name").text(resturantName)
+            $("#modal-name").text(restaurantName)
 
-        $(".modal-body").html($(`<div class="text-center"><img id="modal-grade" src="${grade}" alt="map"></div>`))
-        $(".modal-body").append($(`<h6 class="text-center text-muted">${fullAddress}</h6>`))
+            $(".modal-body").html($(`<div class="text-center"><img id="modal-grade" src="${grade}" alt="map"></div>`))
+            $(".modal-body").append($(`<h6 class="text-center text-muted">${fullAddress}</h6>`))
 
-        // more info part
-        var card = $(this).find(".card-body")
-        $(".modal-body").append($("<ul>").addClass("more-info"))
-        $(".more-info").append($(`<li><b>Cuisine</b>: ${card.attr("data-cuisine")}</li>`))
-        $(".more-info").append($(`<li><b>Violation Code</b>: ${card.attr("data-violation-code")}</li>`))
-        $(".more-info").append($(`<li><b>Violation Description</b>: ${card.attr("data-violation-description")}</li>`))
-        $(".more-info").append($(`<li><b>Inspection Date</b>: ${card.attr("data-inspection-date")}</li>`))
+            // more info part
+            var card = $(this).find(".card-body")
+            $(".modal-body").append($("<ul>").addClass("more-info"))
+            $(".more-info").append($(`<li><b>Cuisine</b>: ${card.attr("data-cuisine")}</li>`))
+            $(".more-info").append($(`<li><b>Violation Code</b>: ${card.attr("data-violation-code")}</li>`))
+            $(".more-info").append($(`<li><b>Violation Description</b>: ${card.attr("data-violation-description")}</li>`))
+            $(".more-info").append($(`<li><b>Inspection Date</b>: ${card.attr("data-inspection-date")}</li>`))
 
-        $('#myModal').modal('show')
+            $('#myModal').modal('show')
+        }
+
+        // behavior if the favorite icon is clicked
+        else {
+            let restaurant = {}
+            restaurant.name = $(this).find(".card-title").text()
+            restaurant.location = { address: $(this).find(".add1").text() }
+            let index = indexOfFavorite(restaurant.name, restaurant.location.address.substring(0, restaurant.location.address.indexOf(" ")))
+            if (index === -1) {
+                favorites.push(restaurant)
+                $(event.target).removeClass('far')
+                $(event.target).addClass('fas')
+                $(event.target).removeClass('hidden')
+            }
+            else {
+                favorites.splice(index, 1);
+                $(event.target).removeClass('fas')
+                $(event.target).addClass('far')
+                $(event.target).addClass('hidden')
+            }
+            localStorage.setItem("favorites", JSON.stringify(favorites));
+        }
 
     })
 
     // Resizing the map
     var mapWidth = $(".map").width()
-    var mapHeight = $(".map").height() 
+    var mapHeight = $(".map").height()
     $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
 
-    $(window).resize(function(){ 
+    $(window).resize(function () {
         var winWidth = $(window).width()
         var winHeight = $(window).height()
 
         if (winWidth >= 990) {
             $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
         } else {
-            $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight/2}px;`)
+            $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight / 2}px;`)
         }
     });
 })
@@ -246,4 +299,15 @@ let trimData = () => {
             allData.splice(sameIndices.pop(), 1)
         }
     }
+}
+
+// checks the favorite list to see if the restaurant input is on it. 
+// if it's not on the list, it returns -1
+let indexOfFavorite = (name, building) => {
+    for (var i = 0; i < favorites.length; i++) {
+        if (favorites[i].name === name && favorites[i].location.address.substring(0, favorites[i].location.address.indexOf(" ")) === building) {
+            return i
+        }
+    }
+    return -1
 }

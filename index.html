@@ -8,12 +8,15 @@
     
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
-    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
 
+    <!-- Mapbox -->
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.css' rel='stylesheet'>
 
- 
+    <link rel="stylesheet" href="assets/css/style.css">
 
 </head>
 <body>
@@ -37,7 +40,7 @@
                 <li class="nav-item">
                     <!-- search bar -->
                     <form class="form-inline my-2 my-lg-0">
-                        <input id="nav-input" class="form-control mr-sm-2" type="search" placeholder="Zipcode, Boro or Resturant" list="options" name="options">
+                        <input id="nav-input" class="form-control mr-sm-2" type="search" placeholder="Zipcode, Boro or restaurant" list="options" name="options">
                         <datalist id="options">
                             <option value="Current Location">
                             <option value="MANHATTAN">
@@ -81,8 +84,8 @@
             </script>
         </div>
 
-        <!-- the resturant cards go here -->
-        <div id="resturant-cards" class="float-md-none float-lg-right row scrollbar scrollbar-primary"></div>
+        <!-- the restaurant cards go here -->
+        <div id="restaurant-cards" class="float-md-none float-lg-right row scrollbar scrollbar-primary"></div>
     </div>
 
 
