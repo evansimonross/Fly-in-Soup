@@ -4,24 +4,25 @@ var longitude
 var userLocation
 var loggedIn = false
 var allData = []
+var markers = []
 var mainApp = {}
 var favorites = JSON.parse(localStorage.getItem("favorites")) || []
 
 $(function () {
     // check if user is logged in
     var uid = null
-    firebase.auth().onAuthStateChanged(function(user) {
+    firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
-          uid = user.id
-          
-          $(".signin").addClass("disappear")
-          $(".signout").removeClass("disappear")
+            uid = user.id
+
+            $(".signin").addClass("disappear")
+            $(".signout").removeClass("disappear")
         } else {
             uid = null
         }
     })
 
-    $(".signout a").on("click", function(event) {
+    $(".signout a").on("click", function (event) {
         event.preventDefault()
         firebase.auth().signOut()
         $(".signin").removeClass("disappear")
@@ -42,7 +43,9 @@ $(function () {
                 marker = new mapboxgl.Marker()
                     .setLngLat([longitude, latitude])
                     .addTo(map)
-                
+
+                markers.push(marker)
+
                 map.flyTo({
                     center: [longitude, latitude],
                     zoom: 15
@@ -86,6 +89,11 @@ $(function () {
         toGeocode(obj.address1 + " " + obj.address2).then(function (response) {
             $(`#${num}`).attr('data-longitude', response.bbox[0])
             $(`#${num}`).attr('data-latitude', response.bbox[1])
+            var marker = new mapboxgl.Marker()
+                .setLngLat([response.bbox[0], response.bbox[1]])
+                .addTo(map)
+            marker.num = num
+            markers.push(marker)
         })
     }
 
@@ -152,11 +160,11 @@ $(function () {
 
             name = element.name.toUpperCase()
             building = element.location.address.substring(0, element.location.address.indexOf(" ")) || ""
-            
+
             // search the database for uppercase restaurant name
             var queryURLUpper = `https://data.cityofnewyork.us/resource/9w7m-hzhe.json?dba=${name}&building=${building}`
             getAllData(queryURLUpper)
-            
+
             // search the database for mixed case restaurant name
             var queryURLMixed = `https://data.cityofnewyork.us/resource/9w7m-hzhe.json?dba=${toMixedCase(name)}&building=${building}`
             getAllData(queryURLMixed)
@@ -187,11 +195,12 @@ $(function () {
     // API search btn
     $("#nav-search").on("click", function (event) {
         event.preventDefault()
+        removeMarkers()
         var input = $("#nav-input").val().trim()
         if (input === "Current Location") {
             getRestaurantList(latitude, longitude)
 
-        } 
+        }
         else if (input === "Favorites") {
             allData = []
             getRestaurantsFromArray(favorites)
@@ -260,12 +269,12 @@ $(function () {
 
     $(window).resize(function () {
         var winWidth = $(window).width()
-        var winHeight = $(window).height()        
+        var winHeight = $(window).height()
 
         if (winWidth >= 940) {
             $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
         } else {
-            $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight* .4}px;`)
+            $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight * .4}px;`)
         }
     })
 })
@@ -342,15 +351,22 @@ let indexOfFavorite = (name, building) => {
 var toMixedCase = (string) => {
     let array = string.split(" ")
     let newArray = []
-    array.forEach(function(element){
+    array.forEach(function (element) {
         newArray.push(element.substring(0, 1).toUpperCase() + element.substring(1, element.length).toLowerCase())
     })
     let newString = ""
-    for(var i=0; i<newArray.length; i++){
-        newString+= newArray[i]
-        if(i<newArray.length-1){
-            newString+= " "
+    for (var i = 0; i < newArray.length; i++) {
+        newString += newArray[i]
+        if (i < newArray.length - 1) {
+            newString += " "
         }
     }
     return newString
+}
+
+var removeMarkers = () => {
+    markers.forEach(function(element){
+        element.remove()
+    })
+    markers = []
 }
