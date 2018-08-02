@@ -3,8 +3,29 @@ var latitude
 var longitude
 var userLocation
 var allData = []
+var mainApp = {}
 
 $(function () {
+    // check if user is logged in
+    var uid = null
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          uid = user.id
+          console.log("hello");
+          
+          $(".signin").addClass("disappear")
+          $(".signout").removeClass("disappear")
+        } else {
+            uid = null
+        }
+    });
+
+    $(".signout a").on("click", function() {
+        firebase.auth().signOut()
+        $(".signin").removeClass("disappear")
+        $(".signout").addClass("disappear")
+    })
+
     // holds all the data from the API search
     let i = 0
 
@@ -184,11 +205,13 @@ $(function () {
     $(window).resize(function(){ 
         var winWidth = $(window).width()
         var winHeight = $(window).height()
+        console.log(winWidth);
+        
 
-        if (winWidth >= 990) {
+        if (winWidth >= 940) {
             $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
         } else {
-            $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight/2}px;`)
+            $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight* .4}px;`)
         }
     });
 })
