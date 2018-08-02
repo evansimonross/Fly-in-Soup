@@ -241,7 +241,7 @@ $(function () {
             $(".modal-body").append($(`<h6 class="text-center text-muted">${fullAddress}</h6>`))
 
             // more info part
-            var card = $(this).find(".card-body")
+            var card = $(this)
             $(".modal-body").append($("<ul>").addClass("more-info"))
             $(".more-info").append($(`<li><b>Cuisine</b>: ${card.attr("data-cuisine")}</li>`))
             $(".more-info").append($(`<li><b>Violation Code</b>: ${card.attr("data-violation-code")}</li>`))
