@@ -89,9 +89,14 @@ $(function () {
                 centerAt(restaurant.geometry.coordinates[0], restaurant.geometry.coordinates[1], 18)
             }
 
-            // create a popup that is identical to the restaurant card.
+            // create a popup that is identical to the restaurant card. 
+            // its id is the same except with "p" afterword for "popup"
+            let popupHTML = $(`#${num}`).parent().html()
+            popupHTML = popupHTML.substring(0, popupHTML.indexOf("id=")) +
+                        `id="${num}p" ` +
+                        popupHTML.substring(popupHTML.indexOf("data-"), popupHTML.length)
             var popup = new mapboxgl.Popup({ offset: 25 })
-                .setHTML($(`#${num}`).parent().html());
+                .setHTML(popupHTML)
 
             // Create a marker for the restaurant. Its color indicates its grade
             var marker = new mapboxgl.Marker()
@@ -257,21 +262,48 @@ $(function () {
             restaurant.name = $(this).find(".card-title").text()
             restaurant.location = { address: $(this).find(".add1").text() }
             let index = indexOfFavorite(restaurant.name, restaurant.location.address.substring(0, restaurant.location.address.indexOf(" ")))
+            
+            // locate the matching card or popup
+            let thisId = $(this).attr("id")
+            let otherId = ""
+            if(thisId.indexOf("p")===-1){
+                otherId = thisId + "p"
+            }
+            else{
+                otherId = thisId.substring(0, thisId.length-1)
+            }
+            let otherHeart = null
+            try{
+                otherHeart = $($($('#' + otherId)[0].children)[2])
+            }
+            catch {} 
 
             // restaurant is not yet on favorites list, add to favorites
             if (index === -1) {
                 favorites.push(restaurant)
-                $(event.target).removeClass('far')
-                $(event.target).addClass('fas')
-                $(event.target).removeClass('hidden')
+
+                // make its card + popup heart icons solid
+                let favIcon = (element) => {
+                    element.removeClass('far')
+                    element.addClass('fas')
+                    element.removeClass('hidden')
+                }
+                favIcon($(event.target))
+                if(otherHeart) { favIcon(otherHeart) }
             }
 
             // restaurant is already on favorites list, remove from favorites
             else {
                 favorites.splice(index, 1)
-                $(event.target).removeClass('fas')
-                $(event.target).addClass('far')
-                $(event.target).addClass('hidden')
+
+                // make its card + popup heart icons hidden + outlined
+                let favIcon = (element) => {
+                    element.removeClass('fas')
+                    element.addClass('far')
+                    element.addClass('hidden')
+                }
+                favIcon($(event.target))
+                if(otherHeart) { favIcon(otherHeart) }
             }
 
             // save locally or to the database if the user is logged in
