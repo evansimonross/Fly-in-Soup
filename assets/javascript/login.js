@@ -33,7 +33,9 @@ $(function () {
         signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID]
     };
 
-    ui.start('#firebaseui-auth-container', uiConfig);
+    if(window.location.pathname.indexOf("login")!=-1){
+        ui.start('#firebaseui-auth-container', uiConfig);
+    }
 
     $("#login").on("click", function() {
         $("#signup-page").addClass("disappear")
@@ -50,7 +52,6 @@ $(function () {
         $("#UserInputPassword").attr("type") === "password" ? $("#UserInputPassword").attr("type", "text") :  $("#UserInputPassword").attr("type", "password")
     }
 
-
     $(".name").tooltip()
     $(".name").on("click", function() {
         var name = $(this).text()
@@ -65,9 +66,14 @@ $(function () {
             $(".signin").addClass("disappear")
             $(".signout").removeClass("disappear")
             uid = x.uid
-            //faveRef.child(uid).set(favorites)
+            faveRef.once('value', function(snapshot){
+                favorites = snapshot.val()[uid]
+                localStorage.setItem("favorites", JSON.stringify(favorites));
+            })
         } else {
             uid = null
+            favorites = []
+            localStorage.setItem("favorites", JSON.stringify(favorites));
         }
     });
     

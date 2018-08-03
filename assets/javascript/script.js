@@ -194,7 +194,7 @@ $(function () {
         }
         else if (input === "Favorites") {
             allData = []
-            centerAt(longitude, latitude, 10)
+            centerAt(longitude, latitude, 13)
             getRestaurantsFromArray(favorites)
         }
         else {
@@ -237,20 +237,29 @@ $(function () {
             restaurant.name = $(this).find(".card-title").text()
             restaurant.location = { address: $(this).find(".add1").text() }
             let index = indexOfFavorite(restaurant.name, restaurant.location.address.substring(0, restaurant.location.address.indexOf(" ")))
+            
+            // restaurant is not yet on favorites list, add to favorites
             if (index === -1) {
                 favorites.push(restaurant)
                 $(event.target).removeClass('far')
                 $(event.target).addClass('fas')
                 $(event.target).removeClass('hidden')
             }
+
+            // restaurant is already on favorites list, remove from favorites
             else {
                 favorites.splice(index, 1)
                 $(event.target).removeClass('fas')
                 $(event.target).addClass('far')
                 $(event.target).addClass('hidden')
             }
-            localStorage.setItem("favorites", JSON.stringify(favorites));
-            faveRef.child(uid).set(favorites)
+
+            // save locally or to the database if the user is logged in
+            localStorage.setItem("favorites", JSON.stringify(favorites))
+            if(uid) { 
+                faveRef.child(uid).set(favorites)
+            }
+        }
     })
 
     // Resizing the map
