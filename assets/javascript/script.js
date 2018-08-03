@@ -25,13 +25,17 @@ $(function () {
             console.log("Could not access user's location")
         }
     }
-    getLocation()
 
-    // delete then creates the cards in HTML
+    // only fetches user's location if on the 'index' page
+    if (window.location.pathname.indexOf("index") != -1) {
+        getLocation()
+    }
+
+    // Create the restaurant cards in HTML
     let createCard = (obj, num) => {
         $("#restaurant-cards").append($('<div class="card col-xl-4 col-lg-6 col-md-4">').append($("<div>").addClass("card-body mini-card").attr("id", num)))
 
-        // grade
+        // grade (color matches the icon)
         $(`#${num}`).append($(`<img class="mini-grade" src="assets/images/grade-${obj.grade}.png">`))
         var gradeColor = "#a6a6a6"
         if (obj.grade === "A") {
@@ -63,26 +67,45 @@ $(function () {
         // add'l data
         $(`#${num}`).attr('data-record-date', obj["record_date"])
         $(`#${num}`).attr('data-inspection-date', obj["inspection_date"].substring(0, 10))
-        $(`#${num}`).attr('data-violation-code', obj["violation_code"])
-        $(`#${num}`).attr('data-violation-description', obj["violation_description"])
+        $(`#${num}`).attr('data-violation-code', obj["violation_code"] || "None")
+        $(`#${num}`).attr('data-violation-description', obj["violation_description"] || "None")
         $(`#${num}`).attr('data-cuisine', obj["cuisine_description"])
 
         // add markers to the map for each restaurant card displayed
         toGeocode(obj.address1 + " " + obj.address2).then(function (response) {
-            // $(`#${num}`).attr('data-longitude', response.bbox[0])
-            // $(`#${num}`).attr('data-latitude', response.bbox[1])
+            let result = response.features
+            let restaurant = {}
 
+            // check which result from the geocode list is in the correct zipcode
+            for (var i = 0; i < result.length; i++) {
+                if (result[i].properties.postalcode === obj.zipcode) {
+                    restaurant = result[i]
+                    break
+                }
+            }
+
+            // center map to restaurant if only one result is found
+            if(allData.length===1){
+                centerAt(restaurant.geometry.coordinates[0], restaurant.geometry.coordinates[1], 18)
+            }
+
+            // create a popup that is identical to the restaurant card. 
+            // its id is the same except with "p" afterword for "popup"
+            let popupHTML = $(`#${num}`).parent().html()
+            popupHTML = popupHTML.substring(0, popupHTML.indexOf("id=")) +
+                        `id="${num}p" ` +
+                        popupHTML.substring(popupHTML.indexOf("data-"), popupHTML.length)
             var popup = new mapboxgl.Popup({ offset: 25 })
-                .setHTML($(`#${num}`).parent().html());
+                .setHTML(popupHTML)
 
             // Create a marker for the restaurant. Its color indicates its grade
             var marker = new mapboxgl.Marker()
-                .setLngLat([response.bbox[0], response.bbox[1]])
+                .setLngLat([restaurant.geometry.coordinates[0], restaurant.geometry.coordinates[1]])
                 .setPopup(popup)
                 .addTo(map)
-            marker.num = num
             $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', gradeColor)
             markers.push(marker)
+
         })
     }
 
@@ -120,6 +143,8 @@ $(function () {
             method: "GET",
             data: {
                 "$where": "grade IS NOT NULL", // Prevents results with undefined grades from showing up in results.
+                "$order": "inspection_date DESC", // Shows more recent inspection results first
+                "$limit": "5000", // Maximum number of results
                 "$$app_token": "jOHHqdrBMVMNGmFWFLpWE22PP" // API token speeds up API retreval speed
             }
         }).then(function (response) {
@@ -194,7 +219,7 @@ $(function () {
         }
         else if (input === "Favorites") {
             allData = []
-            centerAt(longitude, latitude, 10)
+            centerAt(longitude, latitude, 13)
             getRestaurantsFromArray(favorites)
         }
         else {
@@ -237,20 +262,56 @@ $(function () {
             restaurant.name = $(this).find(".card-title").text()
             restaurant.location = { address: $(this).find(".add1").text() }
             let index = indexOfFavorite(restaurant.name, restaurant.location.address.substring(0, restaurant.location.address.indexOf(" ")))
+            
+            // locate the matching card or popup
+            let thisId = $(this).attr("id")
+            let otherId = ""
+            if(thisId.indexOf("p")===-1){
+                otherId = thisId + "p"
+            }
+            else{
+                otherId = thisId.substring(0, thisId.length-1)
+            }
+            let otherHeart = null
+            try{
+                otherHeart = $($($('#' + otherId)[0].children)[2])
+            }
+            catch {} 
+
+            // restaurant is not yet on favorites list, add to favorites
             if (index === -1) {
                 favorites.push(restaurant)
-                $(event.target).removeClass('far')
-                $(event.target).addClass('fas')
-                $(event.target).removeClass('hidden')
+
+                // make its card + popup heart icons solid
+                let favIcon = (element) => {
+                    element.removeClass('far')
+                    element.addClass('fas')
+                    element.removeClass('hidden')
+                }
+                favIcon($(event.target))
+                if(otherHeart) { favIcon(otherHeart) }
             }
+
+            // restaurant is already on favorites list, remove from favorites
             else {
                 favorites.splice(index, 1)
-                $(event.target).removeClass('fas')
-                $(event.target).addClass('far')
-                $(event.target).addClass('hidden')
+
+                // make its card + popup heart icons hidden + outlined
+                let favIcon = (element) => {
+                    element.removeClass('fas')
+                    element.addClass('far')
+                    element.addClass('hidden')
+                }
+                favIcon($(event.target))
+                if(otherHeart) { favIcon(otherHeart) }
             }
-            localStorage.setItem("favorites", JSON.stringify(favorites));
-            faveRef.child(uid).set(favorites)
+
+            // save locally or to the database if the user is logged in
+            localStorage.setItem("favorites", JSON.stringify(favorites))
+            if (uid) {
+                faveRef.child(uid).set(favorites)
+            }
+        }
     })
 
     // Resizing the map
@@ -274,7 +335,7 @@ $(function () {
 // when you use this, call it like so:
 // toGeocode(address).then(function(response){ // STUFF HERE })
 var toGeocode = (address) => {
-    let queryUrl = "https://geosearch.planninglabs.nyc/v1/search?size=1&text=" + address
+    let queryUrl = "https://geosearch.planninglabs.nyc/v1/search?&text=" + address
     return $.ajax({
         url: queryUrl,
         method: "GET",
