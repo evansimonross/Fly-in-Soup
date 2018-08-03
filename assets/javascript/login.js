@@ -1,3 +1,9 @@
+let thisuser
+var uid = null
+var email
+var database
+var faveRef
+
 $(function () {
     // Initialize Firebase
     var config = {
@@ -9,39 +15,22 @@ $(function () {
         messagingSenderId: "1016106732008"
     };
     firebase.initializeApp(config);
-    var database = firebase.database()
+    database = firebase.database()
+    faveRef = database.ref("/favorite")
     
     var ui = new firebaseui.auth.AuthUI(firebase.auth());
     var uiConfig = {
         callbacks: {
           signInSuccessWithAuthResult: function(authResult, redirectUrl) {
-            // User successfully signed in.
-            // Return type determines whether we continue the redirect automatically
-            // or whether we leave that to developer to handle.
             return true;
           },
           uiShown: function() {
-            // The widget is rendered.
-            // Hide the loader.
             document.getElementById('loader').style.display = 'none';
           }
         },
-        // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
         signInFlow: 'popup',
         signInSuccessUrl: 'index.html',
-        signInOptions: [
-          // Leave the lines as is for the providers you want to offer your users.
-        //   firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        //   firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-        //   firebase.auth.TwitterAuthProvider.PROVIDER_ID,
-        //   firebase.auth.GithubAuthProvider.PROVIDER_ID,
-          firebase.auth.EmailAuthProvider.PROVIDER_ID,
-        //   firebase.auth.PhoneAuthProvider.PROVIDER_ID
-        ],
-        // // Terms of service url.
-        // tosUrl: 'index.html',
-        // // Privacy policy url.
-        // privacyPolicyUrl: '<your-privacy-policy-url>'
+        signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID]
     };
 
     ui.start('#firebaseui-auth-container', uiConfig);
@@ -69,5 +58,38 @@ $(function () {
             if (name === "Jano Roze") {$('#jano-Modal').modal('show')}
             if (name === "Katherine He") {$('#kat-Modal').modal('show')}
     })
+
+    //check if user is logged in
+    firebase.auth().onAuthStateChanged(function(x) {
+        if (x) {
+            $(".signin").addClass("disappear")
+            $(".signout").removeClass("disappear")
+            uid = x.uid
+            //faveRef.child(uid).set(favorites)
+        } else {
+            uid = null
+        }
+    });
+    
+    $(".signout a").on("click", function(event) {
+        event.preventDefault()
+        firebase.auth().signOut()
+        $(".signin").removeClass("disappear")
+        $(".signout").addClass("disappear")
+    })
+
+
+
+    
+    
+    
+
+    // thisuser.updateProfile({
+    //     favoites:favorites
+    // }).then(function() {
+    //     console.log("success")
+    // }).catch(function(error) {
+    //     console.log("error")
+    // });
 
 })

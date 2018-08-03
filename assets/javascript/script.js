@@ -9,26 +9,6 @@ var mainApp = {}
 var favorites = JSON.parse(localStorage.getItem("favorites")) || []
 
 $(function () {
-    // check if user is logged in
-    var uid = null
-    firebase.auth().onAuthStateChanged(function (user) {
-        if (user) {
-            uid = user.id
-
-            $(".signin").addClass("disappear")
-            $(".signout").removeClass("disappear")
-        } else {
-            uid = null
-        }
-    })
-
-    $(".signout a").on("click", function (event) {
-        event.preventDefault()
-        firebase.auth().signOut()
-        $(".signin").removeClass("disappear")
-        $(".signout").addClass("disappear")
-    })
-
     // holds all the data from the API search
     let i = 0
 
@@ -269,9 +249,8 @@ $(function () {
                 $(event.target).addClass('far')
                 $(event.target).addClass('hidden')
             }
-            localStorage.setItem("favorites", JSON.stringify(favorites))
-        }
-
+            localStorage.setItem("favorites", JSON.stringify(favorites));
+            faveRef.child(uid).set(favorites)
     })
 
     // Resizing the map
