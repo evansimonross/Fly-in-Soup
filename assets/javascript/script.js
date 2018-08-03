@@ -25,13 +25,17 @@ $(function () {
             console.log("Could not access user's location")
         }
     }
-    getLocation()
 
-    // delete then creates the cards in HTML
+    // only fetches user's location if on the 'index' page
+    if (window.location.pathname.indexOf("index") != -1) {
+        getLocation()
+    }
+
+    // Create the restaurant cards in HTML
     let createCard = (obj, num) => {
         $("#restaurant-cards").append($('<div class="card col-xl-4 col-lg-6 col-md-4">').append($("<div>").addClass("card-body mini-card").attr("id", num)))
 
-        // grade
+        // grade (color matches the icon)
         $(`#${num}`).append($(`<img class="mini-grade" src="assets/images/grade-${obj.grade}.png">`))
         var gradeColor = "#a6a6a6"
         if (obj.grade === "A") {
@@ -63,26 +67,40 @@ $(function () {
         // add'l data
         $(`#${num}`).attr('data-record-date', obj["record_date"])
         $(`#${num}`).attr('data-inspection-date', obj["inspection_date"].substring(0, 10))
-        $(`#${num}`).attr('data-violation-code', obj["violation_code"])
-        $(`#${num}`).attr('data-violation-description', obj["violation_description"])
+        $(`#${num}`).attr('data-violation-code', obj["violation_code"] || "None")
+        $(`#${num}`).attr('data-violation-description', obj["violation_description"] || "None")
         $(`#${num}`).attr('data-cuisine', obj["cuisine_description"])
 
         // add markers to the map for each restaurant card displayed
         toGeocode(obj.address1 + " " + obj.address2).then(function (response) {
-            // $(`#${num}`).attr('data-longitude', response.bbox[0])
-            // $(`#${num}`).attr('data-latitude', response.bbox[1])
+            let result = response.features
+            let restaurant = {}
 
+            // check which result from the geocode list is in the correct zipcode
+            for (var i = 0; i < result.length; i++) {
+                if (result[i].properties.postalcode === obj.zipcode) {
+                    restaurant = result[i]
+                    break
+                }
+            }
+
+            // center map to restaurant if only one result is found
+            if(allData.length===1){
+                centerAt(restaurant.geometry.coordinates[0], restaurant.geometry.coordinates[1], 18)
+            }
+
+            // create a popup that is identical to the restaurant card.
             var popup = new mapboxgl.Popup({ offset: 25 })
                 .setHTML($(`#${num}`).parent().html());
 
             // Create a marker for the restaurant. Its color indicates its grade
             var marker = new mapboxgl.Marker()
-                .setLngLat([response.bbox[0], response.bbox[1]])
+                .setLngLat([restaurant.geometry.coordinates[0], restaurant.geometry.coordinates[1]])
                 .setPopup(popup)
                 .addTo(map)
-            marker.num = num
             $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', gradeColor)
             markers.push(marker)
+
         })
     }
 
@@ -120,6 +138,8 @@ $(function () {
             method: "GET",
             data: {
                 "$where": "grade IS NOT NULL", // Prevents results with undefined grades from showing up in results.
+                "$order": "inspection_date DESC", // Shows more recent inspection results first
+                "$limit": "5000", // Maximum number of results
                 "$$app_token": "jOHHqdrBMVMNGmFWFLpWE22PP" // API token speeds up API retreval speed
             }
         }).then(function (response) {
@@ -237,7 +257,7 @@ $(function () {
             restaurant.name = $(this).find(".card-title").text()
             restaurant.location = { address: $(this).find(".add1").text() }
             let index = indexOfFavorite(restaurant.name, restaurant.location.address.substring(0, restaurant.location.address.indexOf(" ")))
-            
+
             // restaurant is not yet on favorites list, add to favorites
             if (index === -1) {
                 favorites.push(restaurant)
@@ -256,7 +276,7 @@ $(function () {
 
             // save locally or to the database if the user is logged in
             localStorage.setItem("favorites", JSON.stringify(favorites))
-            if(uid) { 
+            if (uid) {
                 faveRef.child(uid).set(favorites)
             }
         }
@@ -283,7 +303,7 @@ $(function () {
 // when you use this, call it like so:
 // toGeocode(address).then(function(response){ // STUFF HERE })
 var toGeocode = (address) => {
-    let queryUrl = "https://geosearch.planninglabs.nyc/v1/search?size=1&text=" + address
+    let queryUrl = "https://geosearch.planninglabs.nyc/v1/search?&text=" + address
     return $.ajax({
         url: queryUrl,
         method: "GET",
