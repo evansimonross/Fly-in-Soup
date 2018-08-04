@@ -227,6 +227,15 @@ $(function () {
         }
     })
 
+    // close modal
+    
+    $(".close-button").on("click", function(event) {
+        event.preventDefault()
+        console.log("hello");
+        
+        $('.modal').modal('hide')
+    })
+
     // display modal when a card is clicked
     $(document).on("click", ".mini-card", function (event) {
 
@@ -247,7 +256,7 @@ $(function () {
 
             // more info part
             var card = $(this)
-            $(".modal-body").append($("<ul>").addClass("more-info"))
+            $(".modal-body").append($("<ul class='dash'>").addClass("more-info"))
             $(".more-info").append($(`<li><b>Cuisine</b>: ${card.attr("data-cuisine")}</li>`))
             $(".more-info").append($(`<li><b>Violation Code</b>: ${card.attr("data-violation-code")}</li>`))
             $(".more-info").append($(`<li><b>Violation Description</b>: ${card.attr("data-violation-description")}</li>`))
@@ -329,6 +338,8 @@ $(function () {
             $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight * .4}px;`)
         }
     })
+
+
 })
 
 // geocoding an address function. 
