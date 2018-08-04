@@ -112,6 +112,18 @@ body, html {
     margin: 20px 0;
 }
 
+ul {
+    list-style-type: none;
+}
+ul.dash > li {
+    text-indent: -5px;
+    margin: 5px 0;
+}
+ul.dash > li:before {
+    content: " - ";
+    text-indent: -5px;
+}
+
 .row {
     margin-right: 0px;
 }
@@ -132,9 +144,32 @@ body, html {
     box-shadow: none;
 }
 
-.mapboxgl-popup-close-button{
+.mapboxgl-popup-close-button,
+.close-button {
     right: 10px;
     top: 10px;
+}
+
+.close-button {
+    background-color: #fff;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    border: none;
+    border-radius: 0 3px 0 0;
+    outline:0;
+}
+
+.mapboxgl-popup-close-button:hover,
+.close-button:hover {
+    text-shadow: 2px 2px 2px #aaa;
+    margin-top: -5px;
+}
+
+.mapboxgl-popup-close-button:hover,
+.close-button:active {
+    text-shadow: none;
+    margin-top: 0;
 }
 
 .mini-card:hover {
@@ -305,7 +340,8 @@ body, html {
     }
 
     #restaurant-cards {
-        height: 60%;
+        height: 55%;
+        margin-top: 50px;
     }
 
     .jumbotron {
