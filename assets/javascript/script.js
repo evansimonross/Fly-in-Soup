@@ -103,7 +103,7 @@ $(function () {
                 .setPopup(popup)
                 .addTo(map)
             $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', gradeColor)
-            markers.push(marker)
+            markers[num] = marker
 
         })
     }
@@ -169,7 +169,7 @@ $(function () {
     let createCards = () => {
         $("#restaurant-cards").empty()
         removeMarkers()
-        let cardId = 0;
+        let cardId = 1;
 
         allData.forEach(element => {
             if (filter === "P") {
@@ -315,17 +315,16 @@ $(function () {
             catch { }
 
             // restaurant is not yet on favorites list, add to favorites
+            let favIcon; 
             if (index === -1) {
                 favorites.push(restaurant)
 
                 // make its card + popup heart icons solid
-                let favIcon = (element) => {
+                favIcon = (element) => {
                     element.removeClass('far')
                     element.addClass('fas')
                     element.removeClass('hidden')
                 }
-                favIcon($(event.target))
-                if (otherHeart) { favIcon(otherHeart) }
             }
 
             // restaurant is already on favorites list, remove from favorites
@@ -333,14 +332,27 @@ $(function () {
                 favorites.splice(index, 1)
 
                 // make its card + popup heart icons hidden + outlined
-                let favIcon = (element) => {
+                favIcon = (element) => {
                     element.removeClass('fas')
                     element.addClass('far')
                     element.addClass('hidden')
                 }
-                favIcon($(event.target))
-                if (otherHeart) { favIcon(otherHeart) }
             }
+
+            // change the icons
+            favIcon($(event.target))
+                if (otherHeart) {
+                    favIcon(otherHeart)
+                }
+                else {
+                    let popupHTML = $(`#${thisId}`).parent().html()
+                    popupHTML = popupHTML.substring(0, popupHTML.indexOf("id=")) +
+                        `id="${thisId}p" ` +
+                        popupHTML.substring(popupHTML.indexOf("data-"), popupHTML.length)
+                    var popup = new mapboxgl.Popup({ offset: 25 })
+                        .setHTML(popupHTML)
+                    markers[parseInt(thisId)].setPopup(popup)
+                }
 
             // save locally or to the database if the user is logged in
             localStorage.setItem("favorites", JSON.stringify(favorites))
@@ -454,22 +466,29 @@ var toMixedCase = (string) => {
 
 // remove all markers from the map 
 var removeMarkers = () => {
-    markers.forEach(function (element) {
-        element.remove()
-    })
-    markers = []
+    for (var i = 1; i < markers.length; i++) { // start at 1 to avoid erasing the center marker
+        if (markers[i]) {
+            markers[i].remove();
+        }
+    }
+    markers = [markers[0]]
 }
 
 // center map at a long/lat position and add a marker there
 var centerAt = (long, lat, zoom) => {
     try {
+        if (markers[0]) {
+            let oldCenter = markers[0]
+            oldCenter.remove()
+        }
+
         marker = new mapboxgl.Marker()
             .setLngLat([long, lat])
             .addTo(map)
 
         $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', '#dd3366')
 
-        markers.push(marker)
+        markers[0] = marker
 
         map.flyTo({
             center: [long, lat],
