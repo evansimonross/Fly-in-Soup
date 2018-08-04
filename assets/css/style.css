@@ -51,6 +51,21 @@ body, html {
     left: 300px;
 }
 
+.filterImg{
+    height: 45px;
+    image-rendering: crisp-edges;
+    margin-left: 20px
+}
+
+.filterImg:hover,
+.filtered{
+    height: 55px;
+    margin-top: -10px;
+    margin-left: 15px;
+    margin-right: -5px;
+    filter: drop-shadow(2px 2px 0 #7773);
+}
+
 #map {
     position: absolute;
     left: 0;

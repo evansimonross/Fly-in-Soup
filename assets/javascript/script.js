@@ -6,11 +6,10 @@ var loggedIn = false
 var allData = []
 var markers = []
 var mainApp = {}
+var filter = ""
 var favorites = JSON.parse(localStorage.getItem("favorites")) || []
 
 $(function () {
-    // holds all the data from the API search
-    let i = 0
 
     // fetches the user's geolocation from the browser
     let getLocation = () => {
@@ -85,7 +84,7 @@ $(function () {
             }
 
             // center map to restaurant if only one result is found
-            if(allData.length===1){
+            if (allData.length === 1) {
                 centerAt(restaurant.geometry.coordinates[0], restaurant.geometry.coordinates[1], 18)
             }
 
@@ -93,8 +92,8 @@ $(function () {
             // its id is the same except with "p" afterword for "popup"
             let popupHTML = $(`#${num}`).parent().html()
             popupHTML = popupHTML.substring(0, popupHTML.indexOf("id=")) +
-                        `id="${num}p" ` +
-                        popupHTML.substring(popupHTML.indexOf("data-"), popupHTML.length)
+                `id="${num}p" ` +
+                popupHTML.substring(popupHTML.indexOf("data-"), popupHTML.length)
             var popup = new mapboxgl.Popup({ offset: 25 })
                 .setHTML(popupHTML)
 
@@ -104,7 +103,7 @@ $(function () {
                 .setPopup(popup)
                 .addTo(map)
             $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', gradeColor)
-            markers.push(marker)
+            markers[num] = marker
 
         })
     }
@@ -157,17 +156,39 @@ $(function () {
                 allData.push(thisRestaurant)
             }
 
-            $("#restaurant-cards").empty()
             trimData()
 
-            allData.forEach(element => {
-                createCard(element, i)
-                i += 1
-            })
+            createCards()
 
             $("#nav-input").val("")
         })
 
+    }
+
+    // create all cards from allData array
+    let createCards = () => {
+        $("#restaurant-cards").empty()
+        removeMarkers()
+        let cardId = 1;
+
+        allData.forEach(element => {
+            if (filter === "P") {
+                if (element.grade === "P" || element.grade === "N" || element.grade === "Z" || element.grade === "Not Yet Graded") {
+                    createCard(element, cardId)
+                    cardId += 1
+                }
+            }
+            else if (filter) {
+                if (element.grade === filter) {
+                    createCard(element, cardId)
+                    cardId += 1
+                }
+            }
+            else {
+                createCard(element, cardId)
+                cardId += 1
+            }
+        })
     }
 
     // display all restaurants from either the user's favorites array or zomato's array
@@ -213,7 +234,7 @@ $(function () {
         event.preventDefault()
         removeMarkers()
         var input = $("#nav-input").val().trim()
-        if (input === "Current Location") {
+        if (input === "Current Location" || input === "") {
             centerAt(longitude, latitude, 15)
             getRestaurantList(latitude, longitude)
         }
@@ -234,6 +255,21 @@ $(function () {
         console.log("hello");
         
         $('.modal').modal('hide')
+    }) 
+
+    // Filter by grade
+    $('.filterImg').on("click", function () {
+        if ($(this).attr('data-filter') === filter) {
+            filter = ""
+            $(this).removeClass("filtered")
+            createCards()
+        }
+        else {
+            filter = $(this).attr('data-filter')
+            $('.filterImg').removeClass("filtered")
+            $(this).addClass("filtered")
+            createCards()
+        }
     })
 
     // display modal when a card is clicked
@@ -271,34 +307,33 @@ $(function () {
             restaurant.name = $(this).find(".card-title").text()
             restaurant.location = { address: $(this).find(".add1").text() }
             let index = indexOfFavorite(restaurant.name, restaurant.location.address.substring(0, restaurant.location.address.indexOf(" ")))
-            
+
             // locate the matching card or popup
             let thisId = $(this).attr("id")
             let otherId = ""
-            if(thisId.indexOf("p")===-1){
+            if (thisId.indexOf("p") === -1) {
                 otherId = thisId + "p"
             }
-            else{
-                otherId = thisId.substring(0, thisId.length-1)
+            else {
+                otherId = thisId.substring(0, thisId.length - 1)
             }
             let otherHeart = null
-            try{
+            try {
                 otherHeart = $($($('#' + otherId)[0].children)[2])
             }
-            catch {} 
+            catch { }
 
             // restaurant is not yet on favorites list, add to favorites
+            let favIcon; 
             if (index === -1) {
                 favorites.push(restaurant)
 
                 // make its card + popup heart icons solid
-                let favIcon = (element) => {
+                favIcon = (element) => {
                     element.removeClass('far')
                     element.addClass('fas')
                     element.removeClass('hidden')
                 }
-                favIcon($(event.target))
-                if(otherHeart) { favIcon(otherHeart) }
             }
 
             // restaurant is already on favorites list, remove from favorites
@@ -306,14 +341,27 @@ $(function () {
                 favorites.splice(index, 1)
 
                 // make its card + popup heart icons hidden + outlined
-                let favIcon = (element) => {
+                favIcon = (element) => {
                     element.removeClass('fas')
                     element.addClass('far')
                     element.addClass('hidden')
                 }
-                favIcon($(event.target))
-                if(otherHeart) { favIcon(otherHeart) }
             }
+
+            // change the icons
+            favIcon($(event.target))
+                if (otherHeart) {
+                    favIcon(otherHeart)
+                }
+                else {
+                    let popupHTML = $(`#${thisId}`).parent().html()
+                    popupHTML = popupHTML.substring(0, popupHTML.indexOf("id=")) +
+                        `id="${thisId}p" ` +
+                        popupHTML.substring(popupHTML.indexOf("data-"), popupHTML.length)
+                    var popup = new mapboxgl.Popup({ offset: 25 })
+                        .setHTML(popupHTML)
+                    markers[parseInt(thisId)].setPopup(popup)
+                }
 
             // save locally or to the database if the user is logged in
             localStorage.setItem("favorites", JSON.stringify(favorites))
@@ -429,22 +477,29 @@ var toMixedCase = (string) => {
 
 // remove all markers from the map 
 var removeMarkers = () => {
-    markers.forEach(function (element) {
-        element.remove()
-    })
-    markers = []
+    for (var i = 1; i < markers.length; i++) { // start at 1 to avoid erasing the center marker
+        if (markers[i]) {
+            markers[i].remove();
+        }
+    }
+    markers = [markers[0]]
 }
 
 // center map at a long/lat position and add a marker there
 var centerAt = (long, lat, zoom) => {
     try {
+        if (markers[0]) {
+            let oldCenter = markers[0]
+            oldCenter.remove()
+        }
+
         marker = new mapboxgl.Marker()
             .setLngLat([long, lat])
             .addTo(map)
 
         $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', '#dd3366')
 
-        markers.push(marker)
+        markers[0] = marker
 
         map.flyTo({
             center: [long, lat],
