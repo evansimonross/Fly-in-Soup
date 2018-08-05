@@ -101,6 +101,7 @@ body, html {
 .mini-grade{
     width: 65px;
     float: right;
+    margin: -5px;
 }
 
 #modal-name {
@@ -189,6 +190,11 @@ ul.dash > li:before {
     bottom: 15px;
     right: 30px;
     color: #dd3366
+}
+
+.mapboxgl-popup-content .fa-heart{
+    bottom: 20px;
+    right: 20px;
 }
 
 .card-text {
