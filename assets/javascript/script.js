@@ -172,6 +172,7 @@ $(function () {
     // create all cards from allData array
     let createCards = () => {
         $("#restaurant-cards").empty()
+        removeMarkers()
         let cardId = 1;
 
         // if the search is small the cards size will be made to fit 
@@ -243,7 +244,6 @@ $(function () {
     // API search btn
     $("#nav-search").on("click", function (event) {
         event.preventDefault()
-        removeMarkers()
         var input = $("#nav-input").val().trim()
         if (input === "Current Location" || input === "") {
             centerAt(longitude, latitude, 15)
