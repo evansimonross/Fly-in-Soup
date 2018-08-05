@@ -34,6 +34,7 @@ We used the following free APIs to build this application:
 We used the following additional technologies:
 - [Firebase Database & Firebase Authentication](https://firebase.google.com/)
 - [Bootstrap](https://getbootstrap.com/)
+- [Bootstrap-xxl](https://bootstrap-xxl.com/)
 - [Font Awesome](https://fontawesome.com/)
 
 Our Fly-in-Soup logo is adapted from [squeakypics](http://www.squeakypics.co.uk/blog/2011/06/fly-soup/fly_soup/)

@@ -328,11 +328,6 @@ ul.dash > li:before {
 }
 
 @media (max-width: 1200px) { 
-    .col-
-
-}
-
-@media (max-width: 1200px) { 
     .form-inline {
         position: static !important;
     }

@@ -32,7 +32,7 @@ $(function () {
 
     // Create the restaurant cards in HTML
     let createCard = (obj, num) => {
-        $("#restaurant-cards").append($('<div class="card col-xl-4 col-lg-6 col-md-4 animated fadeInUp">').append($("<div>").addClass("card-body mini-card").attr("id", num)))
+        $("#restaurant-cards").append($('<div class="card col-xxxl-3 col-xxl-4 col-xl-6 col-lg-6 col-md-4 animated fadeInUp">').append($("<div>").addClass("card-body mini-card").attr("id", num)))
 
         // grade (color matches the icon)
         $(`#${num}`).append($(`<img class="mini-grade" src="assets/images/grade-${obj.grade}.png">`))
