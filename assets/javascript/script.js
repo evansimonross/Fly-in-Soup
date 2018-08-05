@@ -32,7 +32,7 @@ $(function () {
 
     // Create the restaurant cards in HTML
     let createCard = (obj, num) => {
-        $("#restaurant-cards").append($('<div class="card col-xxxl-3 col-xxl-4 col-xl-6 col-lg-6 col-md-4">').append($("<div>").addClass("card-body mini-card").attr("id", num)))
+        $("#restaurant-cards").append($('<div class="card col-xxxl-3 col-xxl-4 col-xl-6 col-lg-6 col-md-4 animated fadeInUp">').append($("<div>").addClass("card-body mini-card").attr("id", num)))
 
         // grade (color matches the icon)
         $(`#${num}`).append($(`<img class="mini-grade" src="assets/images/grade-${obj.grade}.png">`))
@@ -175,6 +175,14 @@ $(function () {
         removeMarkers()
         let cardId = 1;
 
+        // if the search is small the cards size will be made to fit 
+        //else restruant cards section only will be made scrollable
+        if (allData.length >= 10) {
+            $("#restaurant-cards").addClass("large-search")
+        } else if ($("#restaurant-cards").hasClass("large-search")) {
+            $("#restaurant-cards").removeClass("large-search")
+        }
+
         allData.forEach(element => {
             if (filter === "P") {
                 if (element.grade === "P" || element.grade === "N" || element.grade === "Z" || element.grade === "Not Yet Graded") {
@@ -264,6 +272,11 @@ $(function () {
             $(this).addClass("filtered")
             createCards()
         }
+    })
+
+    // close modal button
+    $(".close-button").on("click", function() {
+        $('.modal').modal('hide')
     })
 
     // display modal when a card is clicked
@@ -365,19 +378,23 @@ $(function () {
         }
     })
 
-    // Resizing the map
+    // Resizing the map on load
     var mapWidth = $(".map").width()
     var mapHeight = $(".map").height()
     $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
+     map.resize();
 
+    // change map size on window size change
     $(window).resize(function () {
         var winWidth = $(window).width()
         var winHeight = $(window).height()
 
         if (winWidth >= 940) {
             $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
+            map.resize();
         } else {
             $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight * .4}px;`)
+            map.resize();
         }
     })
 })

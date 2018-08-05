@@ -25,6 +25,10 @@
     <script src="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.js"></script>
     <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.1.1/firebaseui.css" />
 
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+
     <!-- Our CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 
@@ -33,7 +37,7 @@
 <body>
 
     <!-- nav bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+    <nav class="navbar navbar-expand-xl navbar-light bg-light sticky-top animated slideInDown">
         <!-- logo -->
         <a class="navbar-brand" href="#">
             <img src="assets/images/fly_soup.png" alt="logo">
@@ -61,14 +65,15 @@
                             <option value="STATEN ISLAND">
                         </datalist>
                         <button id="nav-search" class="btn btn-outline-secondary my-2 my-sm-0" type="submit">Search</button>
-                        
+                    </form>
+                    <div class="filter">
                         <!-- Filters -->
                         <span>&nbsp; &nbsp; Filter</span>
                         <img class="filterImg" src="assets/images/grade-A.png" data-filter="A">
                         <img class="filterImg" src="assets/images/grade-B.png" data-filter="B">
                         <img class="filterImg" src="assets/images/grade-C.png" data-filter="C">
                         <img class="filterImg" src="assets/images/grade-P.png" data-filter="P">
-                    </form>
+                    </div>
                 </li>
 
                 <!-- Other Pages -->
@@ -92,7 +97,7 @@
 
         <!-- Map-->
         <div class="float-md-none float-lg-right map">
-            <div id='map' style='width: 690px; height: 890px;' class="float-md-none float-lg-right map"></div>
+            <div id='map' style='width: 690px; height: 890px;' class="float-md-none float-lg-right map animated slideInRight"></div>
             <script>
                 mapboxgl.accessToken = 'pk.eyJ1IjoianJvemU4OCIsImEiOiJjams1bDI2MjAxbHQzM3BsZTV0eDEyOHV3In0.QZaTrfBl6_lWiHHSg8FU8g';
                 var map = new mapboxgl.Map({
