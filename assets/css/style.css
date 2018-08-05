@@ -214,6 +214,7 @@ ul.dash > li:before {
     height: 25%;
     margin-top: -20px;
     position: relative;
+    background-color: #fff;
 }
 
 .about-para {
@@ -242,14 +243,11 @@ ul.dash > li:before {
     margin-top: 40px;
     text-align: center;
     text-shadow:
-        -2px -2px #e9ecef,
-        -2px 2px #e9ecef,
-        2px -2px #e9ecef,
         2px 2px #e9ecef;
     background-size: 1px 1em;
     box-shadow:
-        inset 0 -0.175em #e9ecef,
-        inset 0 -0.2em #000;
+        inset 0 -0.15em #fff,
+        inset 0 -0.175em #000;
     position: absolute;
     bottom: 30px;
     left: 5%;
