@@ -144,17 +144,18 @@ ul.dash > li:before {
     box-shadow: none;
 }
 
-.mapboxgl-popup-close-button,
-.close-button {
+.mapboxgl-popup-close-button {
     right: 10px;
     top: 10px;
 }
 
 .close-button {
     background-color: #fff;
+    color: #333;
+    width: 26px;
     position: absolute;
-    right: 10px;
-    top: 10px;
+    right: 0px;
+    top: 0px;
     border: none;
     border-radius: 0 3px 0 0;
     outline:0;
@@ -163,7 +164,7 @@ ul.dash > li:before {
 .mapboxgl-popup-close-button:hover,
 .close-button:hover {
     text-shadow: 2px 2px 2px #aaa;
-    margin-top: -5px;
+    background-color: #ddd;
 }
 
 .mapboxgl-popup-close-button:hover,
