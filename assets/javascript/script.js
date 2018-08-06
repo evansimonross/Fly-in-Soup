@@ -26,7 +26,7 @@ $(function () {
     }
 
     // only fetches user's location if on the 'index' page
-    if (window.location.pathname.indexOf("index") != -1) {
+    if (window.location.pathname.indexOf("about") === -1 && window.location.pathname.indexOf("login") === -1) {
         getLocation()
     }
 
