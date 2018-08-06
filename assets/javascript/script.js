@@ -73,8 +73,22 @@ $(function () {
         $(`#${num}`).attr('data-record-date', obj["record_date"])
         $(`#${num}`).attr('data-inspection-date', obj["inspection_date"].substring(0, 10))
         $(`#${num}`).attr('data-violation-code', obj["violation_code"] || "None")
-        $(`#${num}`).attr('data-violation-description', obj["violation_description"] || "None")
-        $(`#${num}`).attr('data-cuisine', obj["cuisine_description"])
+        let vio = obj["violation_description"] || "None"
+        while(vio.indexOf("'''")!=-1){
+            vio = vio.substring(0, vio.indexOf("''''")) + "\'" + vio.substring(vio.indexOf("''''")+4, vio.length)
+        }
+        while(vio.indexOf("")!=-1){
+            vio = vio.substring(0, vio.indexOf("")) + "\'" + vio.substring(vio.indexOf("")+1, vio.length)
+        }
+        while(vio.indexOf("Âº")!=-1){
+            vio = vio.substring(0, vio.indexOf("Âº")) + "°" + vio.substring(vio.indexOf("Âº")+2, vio.length)
+        }
+        $(`#${num}`).attr('data-violation-description', vio)
+        let cui = obj["cuisine_description"]
+        while(cui.indexOf("Ã©")!=-1){
+            cui = cui.substring(0, cui.indexOf("Ã©")) + "é" + cui.substring(cui.indexOf("Ã©")+2, cui.length)
+        }
+        $(`#${num}`).attr('data-cuisine', cui)
 
         // add markers to the map for each restaurant card displayed
         toGeocode(obj.address1 + " " + obj.address2).then(function (response) {
@@ -251,6 +265,9 @@ $(function () {
     $("#nav-search").on("click", function (event) {
         event.preventDefault()
         var input = $("#nav-input").val().trim()
+        while(input.indexOf("&")!=-1){
+            input = input.substring(0, input.indexOf("&")) + "\%26" + input.substring(input.indexOf("&")+1, input.length)
+        }
         if (input === "Current Location" || input === "") {
             centerAt(longitude, latitude, 15)
             getRestaurantList(latitude, longitude)
