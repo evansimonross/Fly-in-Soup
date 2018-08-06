@@ -202,7 +202,7 @@ ul.dash > li:before {
 }
 
 .fa-heart:hover {
-    cursor: url(../images/heart-cursor.cur), auto;
+    cursor: cell;
 }
 
 .mapboxgl-popup-content .fa-heart{
