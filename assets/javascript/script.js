@@ -25,8 +25,14 @@ $(function () {
         }
     }
 
+    let frontPage = () => {
+        if (window.location.pathname.indexOf("about") === -1 && window.location.pathname.indexOf("login") === -1) {
+            return true
+        }
+    }
+
     // only fetches user's location if on the 'index' page
-    if (window.location.pathname.indexOf("about") === -1 && window.location.pathname.indexOf("login") === -1) {
+    if (frontPage()) {
         getLocation()
     }
 
@@ -103,9 +109,9 @@ $(function () {
                 .setPopup(popup)
                 .addTo(map)
             $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', gradeColor)
-            
+
             // set the marker in the array for easy access later
-            if(markers[num]){
+            if (markers[num]) {
                 markers[num].remove() // to prevent repeated markers
             }
             markers[num] = marker
@@ -275,7 +281,7 @@ $(function () {
     })
 
     // close modal button
-    $(".close-button").on("click", function() {
+    $(".close-button").on("click", function () {
         $('.modal').modal('hide')
     })
 
@@ -331,7 +337,7 @@ $(function () {
             catch { }
 
             // restaurant is not yet on favorites list, add to favorites
-            let favIcon; 
+            let favIcon;
             if (index === -1) {
                 favorites.push(restaurant)
 
@@ -357,18 +363,18 @@ $(function () {
 
             // change the icons
             favIcon($(event.target))
-                if (otherHeart) {
-                    favIcon(otherHeart)
-                }
-                else {
-                    let popupHTML = $(`#${thisId}`).parent().html()
-                    popupHTML = popupHTML.substring(0, popupHTML.indexOf("id=")) +
-                        `id="${thisId}p" ` +
-                        popupHTML.substring(popupHTML.indexOf("data-"), popupHTML.length)
-                    var popup = new mapboxgl.Popup({ offset: 25 })
-                        .setHTML(popupHTML)
-                    markers[parseInt(thisId)].setPopup(popup)
-                }
+            if (otherHeart) {
+                favIcon(otherHeart)
+            }
+            else {
+                let popupHTML = $(`#${thisId}`).parent().html()
+                popupHTML = popupHTML.substring(0, popupHTML.indexOf("id=")) +
+                    `id="${thisId}p" ` +
+                    popupHTML.substring(popupHTML.indexOf("data-"), popupHTML.length)
+                var popup = new mapboxgl.Popup({ offset: 25 })
+                    .setHTML(popupHTML)
+                markers[parseInt(thisId)].setPopup(popup)
+            }
 
             // save locally or to the database if the user is logged in
             localStorage.setItem("favorites", JSON.stringify(favorites))
@@ -378,25 +384,28 @@ $(function () {
         }
     })
 
-    // Resizing the map on load
-    var mapWidth = $(".map").width()
-    var mapHeight = $(".map").height()
-    $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
-     map.resize();
+    if (frontPage()) {
+        // Resizing the map on load
+        var mapWidth = $(".map").width()
+        var mapHeight = $(".map").height()
+        $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
+        map.resize();
 
-    // change map size on window size change
-    $(window).resize(function () {
-        var winWidth = $(window).width()
-        var winHeight = $(window).height()
+        // change map size on window size change
+        $(window).resize(function () {
+            var winWidth = $(window).width()
+            var winHeight = $(window).height()
 
-        if (winWidth >= 940) {
-            $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
-            map.resize();
-        } else {
-            $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight * .4}px;`)
-            map.resize();
-        }
-    })
+            if (winWidth >= 940) {
+                $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
+                map.resize();
+            } else {
+                $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight * .4}px;`)
+                map.resize();
+            }
+        })
+
+    }
 })
 
 // geocoding an address function. 

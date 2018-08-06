@@ -121,6 +121,10 @@ body, html {
     font-size: 24px;
 }
 
+.more-info {
+    padding-left: 10px;
+}
+
 .modal-row {
     margin: 20px 0;
 }
@@ -167,7 +171,6 @@ ul.dash > li:before {
     font-size: 24px;
     background-color: #fff;
     color: #333;
-    width: 26px;
     position: absolute;
     right: 0px;
     top: 0px;
@@ -178,11 +181,6 @@ ul.dash > li:before {
 .close-button:hover {
     text-shadow: 2px 2px 2px #aaa;
     background-color: #ddd;
-}
-
-.mapboxgl-popup-close-button:hover,
-.close-button:active {
-    border: 2px inset #0000001f;
 }
 
 .mini-card:hover {
