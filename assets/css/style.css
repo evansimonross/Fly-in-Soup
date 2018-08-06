@@ -201,6 +201,10 @@ ul.dash > li:before {
     color: #dd3366
 }
 
+.fa-heart:hover {
+    cursor: url(../images/heart-cursor.cur), auto;
+}
+
 .mapboxgl-popup-content .fa-heart{
     bottom: 20px;
     right: 20px;
