@@ -2,9 +2,16 @@
 var latitude
 var longitude
 var userLocation
+var boundsN
+var boundsS
+var boundsE
+var boundsW
 var loggedIn = false
+var restaurantNameSearch
 var allData = []
 var markers = []
+var latArray = []
+var longArray = []
 var mainApp = {}
 var filter = ""
 var favorites = JSON.parse(localStorage.getItem("favorites")) || []
@@ -124,11 +131,60 @@ $(function () {
                 .addTo(map)
             $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', gradeColor)
 
+            longArray.push(restaurant.geometry.coordinates[0])  /// pushes lat and long of each restaurant to arrays for map bounds ///
+            latArray.push(restaurant.geometry.coordinates[1])
+
             // set the marker in the array for easy access later
             if (markers[num]) {
                 markers[num].remove() // to prevent repeated markers
             }
             markers[num] = marker
+
+                                ///////// This is where the map gets resized for restaurant name searches (crashes map?) //////////
+
+            if (restaurantNameSearch === true) {
+
+                boundsN = 0
+                boundsS = 0
+                boundsW = 0
+                boundsE = 0
+
+
+                // console.log("yep")
+                // if (restaurant.geometry.coordinates[0] > boundsE) {
+                //     boundsE = restaurant.geometry.coordinates[0]
+                // }
+                // if (restaurant.geometry.coordinates[0] < boundsW) {
+                //     boundsW = restaurant.geometry.coordinates[0]
+                // }
+
+                        ///////// Ran both methods at once to make sure results were accurate but these didnt work, /////////   
+                        /////////boundsE and boundsS worked great but boundsW and boundsN always returned 0 //////////
+
+                // if (restaurant.geometry.coordinates[1] > boundsN) {
+                //     boundsN = restaurant.geometry.coordinates[1]
+                // }
+                // if (restaurant.geometry.coordinates[1] < boundsS) {
+                //     boundsS = restaurant.geometry.coordinates[1]
+                // }
+
+                console.log(boundsN + " " + boundsS + " " + boundsE + " " + boundsW)
+                console.log( Math.max.apply( null, longArray))
+                console.log( Math.min.apply( null, longArray))
+                console.log( Math.max.apply( null, latArray))
+                console.log( Math.min.apply( null, latArray))
+
+                boundsE = Math.max.apply( null, longArray)
+                boundsW = Math.min.apply( null, longArray)
+                boundsN = Math.max.apply( null, latArray)
+                boundsS = Math.min.apply( null, latArray)
+                
+                console.log(boundsN + " " + boundsS + " " + boundsE + " " + boundsW)
+
+                map.setMaxBounds([[boundsW, boundsS], [boundsE, boundsN]]);
+
+            }
+
         })
     }
 
@@ -141,6 +197,9 @@ $(function () {
             // zipcode
             centerAt(getCoordsFromZip(i)[0], getCoordsFromZip(i)[1], 15)
             i = `?zipcode=${i}`
+            restaurantNameSearch = false
+
+
         } else if (/[a-zA-Z]/.test(i)) {
             i = i.toUpperCase()
 
@@ -148,12 +207,15 @@ $(function () {
                 // boro
                 centerAt(getCoordsFromBorough(i)[0], getCoordsFromBorough(i)[1], 11)
                 i = `?boro=${i}`
+                restaurantNameSearch = false
+
             } else {
                 // restaurant name
                 let restaurantName = i
                 i = `?dba=${restaurantName}`
                 getAllData(queryURL + i)
                 i = `?dba=${toMixedCase(restaurantName)}`
+                restaurantNameSearch = true
             }
         }
         getAllData(queryURL + i)
