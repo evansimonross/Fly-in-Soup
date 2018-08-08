@@ -414,7 +414,7 @@ $(function () {
             var winHeight = $(window).height()
 
             if (winWidth >= 940) {
-                $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
+                $("#map").attr("style", `width: ${mapWidth}px; height: ${winHeight}px;`)
                 map.resize();
             } else {
                 $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight * .4}px;`)

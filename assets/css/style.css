@@ -46,21 +46,39 @@ body, html {
     font-family: var(--title);
 }
 
-.nav-item .form-inline {
-    position: absolute;
-    left: 300px;
+button:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(108,117,125,.5);
+    text-decoration: none;
 }
 
-.filter {
-    display: inline;
+.navbar-toggler {
+    border: none;
+    height: 40px;
+    width: 56px;
+}
+
+.search-btn {
     position: absolute;
-    left: 630px;
+    right: 90px;
+    top: 16px;
+}
+
+.menu-btn {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+}
+
+.nav-item .form-inline,
+.filter  {
+    display: inline;
 }
 
 .filterImg{
     height: 45px;
     image-rendering: crisp-edges;
-    margin-left: 20px;
+    margin-left: 18px;
     filter: grayscale(50%);
     transition: var(--trans);
 
@@ -330,16 +348,17 @@ ul.dash > li:before {
         position: static !important;
     }
 
+    #searchbarResponsive {
+        margin-top: 15px;
+    }
+
     .filter {
         display: block;
         position: static !important;
         padding: 10px 0;
-        border-bottom: 1px solid #ccc;
     }
 
 }
-
-
 
 @media (max-width: 992px) {
     #restaurant-cards,

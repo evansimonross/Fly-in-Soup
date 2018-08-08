@@ -47,11 +47,11 @@
         </a>
 
         <!-- toggle btn when window is small -->
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
-            <span class="navbar-toggler-icon"></span>
+        <button class="navbar-toggler search-btn" type="button" data-toggle="collapse" data-target="#searchbarResponsive">
+            <i class="fas fa-search"></i>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarResponsive">
+        <div class="collapse navbar-collapse" id="searchbarResponsive">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <!-- search bar -->
@@ -77,8 +77,16 @@
                         <img class="filterImg" src="assets/images/grade-P.png" data-filter="P">
                     </div>
                 </li>
+            </ul>
+        </div>
 
-                <!-- Other Pages -->
+        <!-- toggle other pages options btn when window is small -->
+        <button class="navbar-toggler menu-btn" type="button" data-toggle="collapse" data-target="#navbarResponsive">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
                     <a href="#" class="nav-link">Home</a>
                 </li>
@@ -96,7 +104,6 @@
     </nav>
 
     <div class="container-fluid">
-
         <!-- Map-->
         <div class="float-md-none float-lg-right map">
             <div id='map' style='width: 690px; height: 890px;' class="float-md-none float-lg-right map animated slideInRight"></div>
