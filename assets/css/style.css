@@ -38,12 +38,15 @@ body, html {
 
 .navbar-brand img {
     height: 40px;
-    /* padding-bottom: 10px; */
 }
 
 .navbar-brand h3 {
     display: inline;
     font-family: var(--title);
+}
+
+.active {
+    font-weight: bold;
 }
 
 button:focus {
@@ -309,9 +312,14 @@ ul.dash > li:before {
     box-sizing: border-box;
 }
 
+#evan-modal .modal-dialog .modal-content .modal-body .ul li,
+#jano-modal .modal-dialog .modal-content .modal-body .ul li,
+#kat-modal .modal-dialog .modal-content .modal-body .ul li {
+    
+}
+
 
 /* login signup page */
-
 .mdl-button--raised.mdl-button--colored {
     border: 2px solid #6c757d;
     background: transparent;

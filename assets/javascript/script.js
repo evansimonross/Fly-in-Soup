@@ -261,6 +261,20 @@ $(function () {
         })
     }
 
+    // if open search will close nav
+    $(".search-btn").on("click", function() {
+        if ($("#navbarResponsive").hasClass("show")) {
+            $("#navbarResponsive").removeClass("show")
+        }
+    })
+
+    // if open nav will close search
+    $(".menu-btn").on("click", function() {
+        if ($("#searchbarResponsive").hasClass("show")) {
+            $("#searchbarResponsive").removeClass("show")
+        }
+    })
+
     // API search btn
     $("#nav-search").on("click", function (event) {
         event.preventDefault()
@@ -424,6 +438,8 @@ $(function () {
 
     }
 })
+
+
 
 // geocoding an address function. 
 // when you use this, call it like so:
