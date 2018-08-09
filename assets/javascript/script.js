@@ -113,6 +113,7 @@ $(function () {
             // center map to restaurant if only one result is found
             if (allData.length === 1) {
                 centerAt(restaurant.geometry.coordinates[0], restaurant.geometry.coordinates[1], 18)
+                restaurantNameSearch = false;
             }
 
             // create a popup that is identical to the restaurant card. 
@@ -150,38 +151,21 @@ $(function () {
                 boundsE = 0
 
 
-                // console.log("yep")
-                // if (restaurant.geometry.coordinates[0] > boundsE) {
-                //     boundsE = restaurant.geometry.coordinates[0]
-                // }
-                // if (restaurant.geometry.coordinates[0] < boundsW) {
-                //     boundsW = restaurant.geometry.coordinates[0]
-                // }
-
-                        ///////// Ran both methods at once to make sure results were accurate but these didnt work, /////////   
-                        /////////boundsE and boundsS worked great but boundsW and boundsN always returned 0 //////////
-
-                // if (restaurant.geometry.coordinates[1] > boundsN) {
-                //     boundsN = restaurant.geometry.coordinates[1]
-                // }
-                // if (restaurant.geometry.coordinates[1] < boundsS) {
-                //     boundsS = restaurant.geometry.coordinates[1]
-                // }
-
-                console.log(boundsN + " " + boundsS + " " + boundsE + " " + boundsW)
-                console.log( Math.max.apply( null, longArray))
-                console.log( Math.min.apply( null, longArray))
-                console.log( Math.max.apply( null, latArray))
-                console.log( Math.min.apply( null, latArray))
-
                 boundsE = Math.max.apply( null, longArray)
                 boundsW = Math.min.apply( null, longArray)
                 boundsN = Math.max.apply( null, latArray)
                 boundsS = Math.min.apply( null, latArray)
-                
-                console.log(boundsN + " " + boundsS + " " + boundsE + " " + boundsW)
 
-                map.setMaxBounds([[boundsW, boundsS], [boundsE, boundsN]]);
+                var relativeWidth = boundsE - boundsW
+                var relativeHeight = boundsN - boundsS
+
+                
+
+                // map.setMaxBounds([[boundsW, boundsS], [boundsE, boundsN]]);
+                map.fitBounds([
+                    [(boundsW - ((relativeWidth)* 0.05)), (boundsS - ((relativeHeight)* 0.05))],
+                    [(boundsE + ((relativeWidth)* 0.05)), (boundsN + ((relativeHeight)* 0.05))]
+                ]);
 
             }
 
@@ -246,10 +230,16 @@ $(function () {
 
             createCards()
 
+   
+
+
             $("#nav-input").val("")
         })
 
     }
+
+
+
 
     // create all cards from allData array
     let createCards = () => {
@@ -283,6 +273,7 @@ $(function () {
                 cardId += 1
             }
         })
+
     }
 
     // display all restaurants from either the user's favorites array or zomato's array
