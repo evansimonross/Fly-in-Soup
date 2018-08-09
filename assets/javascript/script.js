@@ -2,9 +2,16 @@
 var latitude
 var longitude
 var userLocation
+var boundsN
+var boundsS
+var boundsE
+var boundsW
 var loggedIn = false
+var restaurantNameSearch
 var allData = []
 var markers = []
+var latArray = []
+var longArray = []
 var mainApp = {}
 var filter = ""
 var favorites = JSON.parse(localStorage.getItem("favorites")) || []
@@ -106,6 +113,7 @@ $(function () {
             // center map to restaurant if only one result is found
             if (allData.length === 1) {
                 centerAt(restaurant.geometry.coordinates[0], restaurant.geometry.coordinates[1], 18)
+                restaurantNameSearch = false;
             }
 
             // create a popup that is identical to the restaurant card. 
@@ -124,11 +132,43 @@ $(function () {
                 .addTo(map)
             $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', gradeColor)
 
+            longArray.push(restaurant.geometry.coordinates[0])  /// pushes lat and long of each restaurant to arrays for map bounds ///
+            latArray.push(restaurant.geometry.coordinates[1])
+
             // set the marker in the array for easy access later
             if (markers[num]) {
                 markers[num].remove() // to prevent repeated markers
             }
             markers[num] = marker
+
+                                ///////// This is where the map gets resized for restaurant name searches (crashes map?) //////////
+
+            if (restaurantNameSearch === true) {
+
+                boundsN = 0
+                boundsS = 0
+                boundsW = 0
+                boundsE = 0
+
+
+                boundsE = Math.max.apply( null, longArray)
+                boundsW = Math.min.apply( null, longArray)
+                boundsN = Math.max.apply( null, latArray)
+                boundsS = Math.min.apply( null, latArray)
+
+                var relativeWidth = boundsE - boundsW
+                var relativeHeight = boundsN - boundsS
+
+                
+
+                // map.setMaxBounds([[boundsW, boundsS], [boundsE, boundsN]]);
+                map.fitBounds([
+                    [(boundsW - ((relativeWidth)* 0.05)), (boundsS - ((relativeHeight)* 0.05))],
+                    [(boundsE + ((relativeWidth)* 0.05)), (boundsN + ((relativeHeight)* 0.05))]
+                ]);
+
+            }
+
         })
     }
 
@@ -141,6 +181,9 @@ $(function () {
             // zipcode
             centerAt(getCoordsFromZip(i)[0], getCoordsFromZip(i)[1], 15)
             i = `?zipcode=${i}`
+            restaurantNameSearch = false
+
+
         } else if (/[a-zA-Z]/.test(i)) {
             i = i.toUpperCase()
 
@@ -148,12 +191,15 @@ $(function () {
                 // boro
                 centerAt(getCoordsFromBorough(i)[0], getCoordsFromBorough(i)[1], 11)
                 i = `?boro=${i}`
+                restaurantNameSearch = false
+
             } else {
                 // restaurant name
                 let restaurantName = i
                 i = `?dba=${restaurantName}`
                 getAllData(queryURL + i)
                 i = `?dba=${toMixedCase(restaurantName)}`
+                restaurantNameSearch = true
             }
         }
         getAllData(queryURL + i)
@@ -184,10 +230,16 @@ $(function () {
 
             createCards()
 
+   
+
+
             $("#nav-input").val("")
         })
 
     }
+
+
+
 
     // create all cards from allData array
     let createCards = () => {
@@ -221,6 +273,7 @@ $(function () {
                 cardId += 1
             }
         })
+
     }
 
     // display all restaurants from either the user's favorites array or zomato's array
