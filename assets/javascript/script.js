@@ -1,13 +1,21 @@
-// global variable to hold user's geolocation
+// User data
+var loggedIn = false
 var latitude
 var longitude
 var userLocation
-var loggedIn = false
-var allData = []
-var markers = []
-var mainApp = {}
-var filter = ""
 var favorites = JSON.parse(localStorage.getItem("favorites")) || []
+
+// Map data
+var markers = []
+var boundsN
+var boundsS
+var boundsE
+var boundsW
+var autoBounds = false
+
+// Search functionality
+var allData = []
+var filter = ""
 
 $(function () {
 
@@ -18,13 +26,14 @@ $(function () {
                 userLocation = position
                 longitude = parseFloat(userLocation.coords.longitude).toFixed(4)
                 latitude = parseFloat(userLocation.coords.latitude).toFixed(4)
-                centerAt(longitude, latitude, 15)
+                centerAt(longitude, latitude, 14.5)
             })
         } else {
             console.log("Could not access user's location")
         }
     }
 
+    // Returns true if the user is on the front page. Used to check whether to run map-related functionality
     let frontPage = () => {
         if (window.location.pathname.indexOf("about") === -1 && window.location.pathname.indexOf("login") === -1) {
             return true
@@ -69,24 +78,26 @@ $(function () {
         $(`#${num}`).append($(`<h6 class="add1 card-subtitle mb-2 text-muted">${obj.address1}</h6>`))
         $(`#${num}`).append($(`<h6 class="add2 card-subtitle mb-2 text-muted">${obj.address2}</h6>`))
 
-        // add'l data
+        // additional data from the database
         $(`#${num}`).attr('data-record-date', obj["record_date"])
         $(`#${num}`).attr('data-inspection-date', obj["inspection_date"].substring(0, 10))
         $(`#${num}`).attr('data-violation-code', obj["violation_code"] || "None")
+
+        // handling encoding errors prevalent in the DOH data
         let vio = obj["violation_description"] || "None"
-        while(vio.indexOf("'''")!=-1){
-            vio = vio.substring(0, vio.indexOf("''''")) + "\'" + vio.substring(vio.indexOf("''''")+4, vio.length)
+        while (vio.indexOf("'''") != -1) {
+            vio = vio.substring(0, vio.indexOf("''''")) + "\'" + vio.substring(vio.indexOf("''''") + 4, vio.length)
         }
-        while(vio.indexOf("")!=-1){
-            vio = vio.substring(0, vio.indexOf("")) + "\'" + vio.substring(vio.indexOf("")+1, vio.length)
+        while (vio.indexOf("") != -1) {
+            vio = vio.substring(0, vio.indexOf("")) + "\'" + vio.substring(vio.indexOf("") + 1, vio.length)
         }
-        while(vio.indexOf("Âº")!=-1){
-            vio = vio.substring(0, vio.indexOf("Âº")) + "°" + vio.substring(vio.indexOf("Âº")+2, vio.length)
+        while (vio.indexOf("Âº") != -1) {
+            vio = vio.substring(0, vio.indexOf("Âº")) + "°" + vio.substring(vio.indexOf("Âº") + 2, vio.length)
         }
         $(`#${num}`).attr('data-violation-description', vio)
         let cui = obj["cuisine_description"]
-        while(cui.indexOf("Ã©")!=-1){
-            cui = cui.substring(0, cui.indexOf("Ã©")) + "é" + cui.substring(cui.indexOf("Ã©")+2, cui.length)
+        while (cui.indexOf("Ã©") != -1) {
+            cui = cui.substring(0, cui.indexOf("Ã©")) + "é" + cui.substring(cui.indexOf("Ã©") + 2, cui.length)
         }
         $(`#${num}`).attr('data-cuisine', cui)
 
@@ -103,10 +114,8 @@ $(function () {
                 }
             }
 
-            // center map to restaurant if only one result is found
-            if (allData.length === 1) {
-                centerAt(restaurant.geometry.coordinates[0], restaurant.geometry.coordinates[1], 18)
-            }
+            let long = restaurant.geometry.coordinates[0]
+            let lat = restaurant.geometry.coordinates[1]
 
             // create a popup that is identical to the restaurant card. 
             // its id is the same except with "p" afterword for "popup"
@@ -119,7 +128,7 @@ $(function () {
 
             // Create a marker for the restaurant. Its color indicates its grade
             var marker = new mapboxgl.Marker()
-                .setLngLat([restaurant.geometry.coordinates[0], restaurant.geometry.coordinates[1]])
+                .setLngLat([long, lat])
                 .setPopup(popup)
                 .addTo(map)
             $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', gradeColor)
@@ -127,8 +136,55 @@ $(function () {
             // set the marker in the array for easy access later
             if (markers[num]) {
                 markers[num].remove() // to prevent repeated markers
+                if (num === 1) { // to prevent bounding issues
+                    markers[num] = marker
+                    return 
+                } 
             }
             markers[num] = marker
+
+            // The map is resized if the not given set center/zoom
+
+            if (autoBounds === true) {
+
+                // Delete the center marker because there's no center
+                if (markers[0]) {
+                    markers[0].remove()
+                    markers[0] = undefined;
+                }
+
+                var relativeWidth = 0
+                var relativeHeight = 0
+
+                // Set the minimum bounds around the first restaurant in the list. 
+                // This will be the total bounds if there's only one restuarant.
+                if (num === 1) {
+                    boundsN = lat
+                    boundsS = lat
+                    boundsE = long
+                    boundsW = long
+                    relativeWidth = 0.01
+                    relativeHeight = 0.02
+                }
+
+                // Increase the bounds if a restaurant is outside the current bounds in any direction
+                else {
+                    if (lat > boundsN) { boundsN = lat }
+                    if (lat < boundsS) { boundsS = lat }
+                    if (long < boundsW) { boundsW = long }
+                    if (long > boundsE) { boundsE = long }
+                    relativeWidth = boundsE - boundsW
+                    relativeHeight = boundsN - boundsS
+                }
+
+                // Set the bounds a bit further out than the most extreme locations
+                map.fitBounds([
+                    [(boundsW - ((relativeWidth) * 0.05)), (boundsS - ((relativeHeight) * 0.05))],
+                    [(boundsE + ((relativeWidth) * 0.05)), (boundsN + ((relativeHeight) * 0.05))]
+                ]);
+
+            }
+
         })
     }
 
@@ -139,8 +195,10 @@ $(function () {
 
         if (/\d{5}/.test(i)) {
             // zipcode
-            centerAt(getCoordsFromZip(i)[0], getCoordsFromZip(i)[1], 15)
+            centerAt(getCoordsFromZip(i)[0], getCoordsFromZip(i)[1], 14)
             i = `?zipcode=${i}`
+            autoBounds = false
+
         } else if (/[a-zA-Z]/.test(i)) {
             i = i.toUpperCase()
 
@@ -148,12 +206,15 @@ $(function () {
                 // boro
                 centerAt(getCoordsFromBorough(i)[0], getCoordsFromBorough(i)[1], 11)
                 i = `?boro=${i}`
+                autoBounds = false
+
             } else {
                 // restaurant name
                 let restaurantName = i
                 i = `?dba=${restaurantName}`
                 getAllData(queryURL + i)
                 i = `?dba=${toMixedCase(restaurantName)}`
+                autoBounds = true
             }
         }
         getAllData(queryURL + i)
@@ -180,10 +241,13 @@ $(function () {
                 allData.push(thisRestaurant)
             }
 
+            // Prevent repeats. Only the most recent result is kept
             trimData()
 
+            // Populate restaurant cards and map
             createCards()
 
+            // Clear the searchbar
             $("#nav-input").val("")
         })
 
@@ -203,24 +267,34 @@ $(function () {
             $("#restaurant-cards").removeClass("large-search")
         }
 
+        // Filter the results by grade
         allData.forEach(element => {
+
+            // Data in the dataset for "pending" can be saved as four different grade values.
+            // "P", "N" and "Z" have subtly different meanings that are not relevent for this application.
+            // The unabbreviated "Not Yet Graded" should not appear in the data, but does. Frequently.
             if (filter === "P") {
                 if (element.grade === "P" || element.grade === "N" || element.grade === "Z" || element.grade === "Not Yet Graded") {
                     createCard(element, cardId)
                     cardId += 1
                 }
             }
+
+            // A, B and C filters are self-explanatory 
             else if (filter) {
                 if (element.grade === filter) {
                     createCard(element, cardId)
                     cardId += 1
                 }
             }
+
+            // No filter means all data should be represented
             else {
                 createCard(element, cardId)
                 cardId += 1
             }
         })
+
     }
 
     // display all restaurants from either the user's favorites array or zomato's array
@@ -265,17 +339,20 @@ $(function () {
     $("#nav-search").on("click", function (event) {
         event.preventDefault()
         var input = $("#nav-input").val().trim()
-        while(input.indexOf("&")!=-1){
-            input = input.substring(0, input.indexOf("&")) + "\%26" + input.substring(input.indexOf("&")+1, input.length)
+
+        // Handles restaurants with "&" in the name in order to prevent the AJAX call from believing a new parameter follows
+        while (input.indexOf("&") != -1) {
+            input = input.substring(0, input.indexOf("&")) + "\%26" + input.substring(input.indexOf("&") + 1, input.length)
         }
         if (input === "Current Location" || input === "") {
-            centerAt(longitude, latitude, 15)
+            centerAt(longitude, latitude, 14.5)
             getRestaurantList(latitude, longitude)
+            autoBounds = false
         }
         else if (input === "Favorites") {
             allData = []
-            centerAt(longitude, latitude, 13)
             getRestaurantsFromArray(favorites)
+            autoBounds = true
         }
         else {
             buildQueryURL(input)
@@ -438,6 +515,7 @@ var toGeocode = (address) => {
 
 // check which date is newer (YYYY-MM-DD format)
 let isNewerThan = (date1, date2) => {
+
     let date1Year = parseInt(date1.substring(0, 4))
     let date2Year = parseInt(date2.substring(0, 4))
     if (date1Year > date2Year) { return true }
@@ -453,29 +531,42 @@ let isNewerThan = (date1, date2) => {
     if (date1Day > date2Day) { return true }
     if (date2Day > date1Day) { return false }
 
+    // if the dates are the same, date1 is not newer
     return false
 }
 
 // delete repeats in the data, preserving only the most recent inspection result
 let trimData = () => {
     for (let i = 0; i < allData.length;) {
+
+        // Find indices of all repeat restaurants of index i
         let thisRestaurant = allData[i]
         let sameIndices = [i]
         for (let j = i + 1; j < allData.length; j++) {
+
+            // If the name and building number are the same, we assume it's the same restaurant
+            // Maybe add more comparisons later if issues arise
             if (thisRestaurant.dba === allData[j].dba && thisRestaurant.building === allData[j].building) {
                 sameIndices.push(j)
             }
         }
+
+        // Find which of the repeat restaurants is newest 
         newestIndex = i
         sameIndices.forEach(function (element) {
             if (isNewerThan(allData[element].inspection_date, allData[newestIndex].inspection_date)) {
                 newestIndex = element
             }
         })
+
+        // Remove the newest index from the sameIndices array. 
+        // Increment i unless index 0 has been deleted in which case i should remain the same
         sameIndices.splice(sameIndices.indexOf(newestIndex), 1)
         if (sameIndices.indexOf(0) === -1) {
             i++
         }
+
+        // Remove all repeat data from the allData array
         while (sameIndices.length > 0) {
             allData.splice(sameIndices.pop(), 1)
         }
@@ -523,19 +614,25 @@ var removeMarkers = () => {
 // center map at a long/lat position and add a marker there
 var centerAt = (long, lat, zoom) => {
     try {
+
+        // remove a previous center marker
         if (markers[0]) {
             let oldCenter = markers[0]
             oldCenter.remove()
         }
 
+        // place a new center marker at the specified location
         marker = new mapboxgl.Marker()
             .setLngLat([long, lat])
             .addTo(map)
 
+        // give it a neutral color
         $($($($($($(marker)[0]._element)).children()[0]).children()[0]).children()[1]).attr('fill', '#dd3366')
 
+        // put it in the array
         markers[0] = marker
 
+        // fly to that location at the specified zoom
         map.flyTo({
             center: [long, lat],
             zoom: zoom
