@@ -11,7 +11,6 @@ var boundsN
 var boundsS
 var boundsE
 var boundsW
-var autoBounds = false
 
 // Search functionality
 var allData = []
@@ -149,47 +148,37 @@ $(function () {
             }
             markers[num] = marker
 
-            // The map is resized if the not given set center/zoom
+            // The map is resized according to the N/S/E/W most restaurants
 
-            if (autoBounds === true) {
+            var relativeWidth = 0
+            var relativeHeight = 0
 
-                // Delete the center marker because there's no center
-                if (markers[0]) {
-                    markers[0].remove()
-                    markers[0] = undefined;
-                }
-
-                var relativeWidth = 0
-                var relativeHeight = 0
-
-                // Set the minimum bounds around the first restaurant in the list. 
-                // This will be the total bounds if there's only one restuarant.
-                if (num === 1) {
-                    boundsN = lat
-                    boundsS = lat
-                    boundsE = long
-                    boundsW = long
-                    relativeWidth = 0.01
-                    relativeHeight = 0.02
-                }
-
-                // Increase the bounds if a restaurant is outside the current bounds in any direction
-                else {
-                    if (lat > boundsN) { boundsN = lat }
-                    if (lat < boundsS) { boundsS = lat }
-                    if (long < boundsW) { boundsW = long }
-                    if (long > boundsE) { boundsE = long }
-                    relativeWidth = boundsE - boundsW
-                    relativeHeight = boundsN - boundsS
-                }
-
-                // Set the bounds a bit further out than the most extreme locations
-                map.fitBounds([
-                    [(boundsW - ((relativeWidth) * 0.05)), (boundsS - ((relativeHeight) * 0.05))],
-                    [(boundsE + ((relativeWidth) * 0.05)), (boundsN + ((relativeHeight) * 0.05))]
-                ]);
-
+            // Set the minimum bounds around the first restaurant in the list. 
+            // This will be the total bounds if there's only one restuarant.
+            if (num === 1) {
+                boundsN = lat
+                boundsS = lat
+                boundsE = long
+                boundsW = long
+                relativeWidth = 0.01
+                relativeHeight = 0.02
             }
+
+            // Increase the bounds if a restaurant is outside the current bounds in any direction
+            else {
+                if (lat > boundsN) { boundsN = lat }
+                if (lat < boundsS) { boundsS = lat }
+                if (long < boundsW) { boundsW = long }
+                if (long > boundsE) { boundsE = long }
+                relativeWidth = boundsE - boundsW
+                relativeHeight = boundsN - boundsS
+            }
+
+            // Set the bounds a bit further out than the most extreme locations
+            map.fitBounds([
+                [(boundsW - ((relativeWidth) * 0.05)), (boundsS - ((relativeHeight) * 0.05))],
+                [(boundsE + ((relativeWidth) * 0.05)), (boundsN + ((relativeHeight) * 0.05))]
+            ]);
 
         })
     }
@@ -202,11 +191,7 @@ $(function () {
         if (/\d{5}/.test(i)) {
             // zipcode
             searchSource = "zip"
-            if (getCoordsFromZip(1)) {
-                centerAt(getCoordsFromZip(i)[0], getCoordsFromZip(i)[1], 14)
-            }
             i = `?zipcode=${i}`
-            autoBounds = false
 
         } else if (/[a-zA-Z]/.test(i)) {
             i = i.toUpperCase()
@@ -214,9 +199,7 @@ $(function () {
             if (i === "MANHATTAN" || i === "BROOKLYN" || i === "QUEENS" || i === "BRONX" || i === "STATEN ISLAND") {
                 // boro
                 searchSource = "boro"
-                centerAt(getCoordsFromBorough(i)[0], getCoordsFromBorough(i)[1], 11)
                 i = `?boro=${i}`
-                autoBounds = false
 
             } else {
                 // restaurant name
@@ -225,7 +208,6 @@ $(function () {
                 i = `?dba=${restaurantName}`
                 getAllData(queryURL + i)
                 i = `?dba=${toMixedCase(restaurantName)}`
-                autoBounds = true
             }
         }
         getAllData(queryURL + i)
@@ -318,7 +300,7 @@ $(function () {
 
     // display all restaurants from either the user's favorites array or zomato's array
     let getRestaurantsFromArray = (array) => {
-        if(array.length===0 && searchSource==="favs"){
+        if (array.length === 0 && searchSource === "favs") {
             noResult()
             return
         }
@@ -373,13 +355,11 @@ $(function () {
             searchSource = "loc"
             centerAt(longitude, latitude, 14.5)
             getRestaurantList(latitude, longitude)
-            autoBounds = false
-                }
+        }
         else if (input === "Favorites") {
             searchSource = "favs"
             allData = []
             getRestaurantsFromArray(favorites)
-            autoBounds = true
         }
         else {
             buildQueryURL(input)
@@ -413,6 +393,8 @@ $(function () {
         // behavior if part of the card other than the favorite icon is clicked
         if ($(event.target)[0].className.indexOf("fa-heart") === -1) {
 
+            if ($(this).attr("id") === "here") { return }
+
             let restaurantName = $(this).find(".card-title").text()
             let fullAddress = $(this).find(".add1").text() + " " + $(this).find(".add2").text()
             let grade = $(this).find(".mini-grade").attr('src')
@@ -422,7 +404,7 @@ $(function () {
 
             $("#modal-name").text(restaurantName)
 
-            $(".modal-body").html($(`<div class="text-center"><img id="modal-grade" src="${grade}" alt="map"></div>`))
+            $(".modal-body").html($(`<div class="text-center"><img id="modal-grade" src="${grade}" alt="Grade: ${grade}"></div>`))
             $(".modal-body").append($(`<h6 class="text-center text-muted">${fullAddress}</h6>`))
 
             // more info part
@@ -649,9 +631,14 @@ var centerAt = (long, lat, zoom) => {
             oldCenter.remove()
         }
 
+        // create a popup for the YOU ARE HERE marker
+        var popup = new mapboxgl.Popup({ offset: 25 })
+            .setHTML('<div class="card-body mini-card" id="here"><h5 class="card-title fancy">You are Here</h5></div>')
+
         // place a new center marker at the specified location
         marker = new mapboxgl.Marker()
             .setLngLat([long, lat])
+            .setPopup(popup)
             .addTo(map)
 
         // give it a neutral color
@@ -671,40 +658,46 @@ var centerAt = (long, lat, zoom) => {
 
 // check for a search that had no result
 var noResult = () => {
-    if (hasResult) { return }
-    $('#restaurant-cards').empty()
-    if (searchSource === "none") {
-        $('#restaurant-cards').append('<h3>Welcome to Fly-in-Soup!</h3>')
-        $('#restaurant-cards').append('<p>Please try making a search.</p>')
-        $('#restaurant-cards').append('<p>You can search by borough, zip code, or restaurant name.</p>')
-        $('#restaurant-cards').append("<p>You can also search by your 'Current Location' if you're in NYC.</p>")
-        $('#restaurant-cards').append("<p>If you have favorite restaurants saved, you can search 'Favorites' too.</p>")
-    }
-    else if (filter) {
-        $('#restaurant-cards').append('<h3>No Results Found</h3>')
-        $('#restaurant-cards').append('<p>Try changing the grade filter or turning the filter off.</p>')
-    }
-    else if (searchSource === "loc") {
-        $('#restaurant-cards').append('<h3>No Results Found</h3>')
-        $('#restaurant-cards').append("<p>If you haven't done so, please accept location permissions to use this feature.</p>")
-        $('#restaurant-cards').append("<p>Our data set only includes the five boroughs of New York. This feature will not work if you're outside NYC.</p>")
-    }
-    else if (searchSource === "favs") {
-        $('#restaurant-cards').append('<h3>No Results Found</h3>')
-        $('#restaurant-cards').append("<p>There may be no favorites saved to your computer or to your account.</p>")
-        $('#restaurant-cards').append("<p>If you have favorites on your account, please make sure that you are logged in.</p>")
-    }
-    else if (searchSource === "zip") {
-        $('#restaurant-cards').append('<h3>No Results Found</h3>')
-        $('#restaurant-cards').append("<p>Our data set only includes the five boroughs of New York. We can only check zip codes that are inside NYC.</p>")
-    }
-    else if (searchSource === "boro") {
-        $('#restaurant-cards').append('<h3>No Results Found</h3>')
-        $('#restaurant-cards').append("<p>Something has gone wrong.</p>")
-    }
-    else if (searchSource === "restaurant") {
-        $('#restaurant-cards').append('<h3>No Results Found</h3>')
-        $('#restaurant-cards').append("<p>We could not find any restaurant by that name. Please make sure that you have inputted it correctly.</p>")
-        $('#restaurant-cards').append("<p>Unfortuntely, due to the limitations of the DOHMH health inspection dataset, some restaurants may not be searchable at this time.")
-    }
+    setTimeout(function () {
+        if (hasResult) { return }
+        $('#restaurant-cards').empty()
+        $('#restaurant-cards').css("opacity","0")
+        if (searchSource === "none") {
+            $('#restaurant-cards').append('<h3>&nbsp;Welcome to Fly-in-Soup!</h3>')
+            $('#restaurant-cards').append('<p>Please try making a search.</p>')
+            $('#restaurant-cards').append('<p>You can search by borough, zip code, or restaurant name.</p>')
+            $('#restaurant-cards').append("<p>You can also search by your 'Current Location' if you're in NYC.</p>")
+            $('#restaurant-cards').append("<p>If you have favorite restaurants saved, you can search 'Favorites' too.</p>")
+        }
+        else if (filter) {
+            $('#restaurant-cards').append('<h3>&nbsp;No Results Found</h3>')
+            $('#restaurant-cards').append('<p>Try changing the grade filter or turning the filter off.</p>')
+        }
+        else if (searchSource === "loc") {
+            $('#restaurant-cards').append('<h3>&nbsp;No Results Found</h3>')
+            $('#restaurant-cards').append("<p>If you haven't done so, please accept location permissions to use this feature.</p>")
+            $('#restaurant-cards').append("<p>Our data set only includes the five boroughs of New York. This feature will not work if you're outside NYC.</p>")
+        }
+        else if (searchSource === "favs") {
+            $('#restaurant-cards').append('<h3>&nbsp;No Results Found</h3>')
+            $('#restaurant-cards').append("<p>There may be no favorites saved to your computer or to your account.</p>")
+            $('#restaurant-cards').append("<p>If you have favorites on your account, please make sure that you are logged in.</p>")
+        }
+        else if (searchSource === "zip") {
+            $('#restaurant-cards').append('<h3>&nbsp;No Results Found</h3>')
+            $('#restaurant-cards').append("<p>Our data set only includes the five boroughs of New York. We can only check zip codes that are inside NYC.</p>")
+        }
+        else if (searchSource === "boro") {
+            $('#restaurant-cards').append('<h3>&nbsp;No Results Found</h3>')
+            $('#restaurant-cards').append("<p>Something has gone wrong.</p>")
+        }
+        else if (searchSource === "restaurant") {
+            $('#restaurant-cards').append('<h3>&nbsp;No Results Found</h3>')
+            $('#restaurant-cards').append("<p>We could not find any restaurant by that name. Please make sure that you have inputted it correctly.</p>")
+            $('#restaurant-cards').append("<p>Unfortuntely, due to the limitations of the DOHMH health inspection dataset, some restaurants may not be searchable at this time.")
+        }
+        $('#restaurant-cards').animate({
+            "opacity": 1
+        },500)
+    }, 500)
 }
