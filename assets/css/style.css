@@ -312,12 +312,31 @@ ul.dash > li:before {
     box-sizing: border-box;
 }
 
-#evan-modal .modal-dialog .modal-content .modal-body .ul li,
-#jano-modal .modal-dialog .modal-content .modal-body .ul li,
-#kat-modal .modal-dialog .modal-content .modal-body .ul li {
-    
+.about-body h4 {
+    margin: 40px 0px 15px;
+    font-weight: bold;
 }
 
+#evan-Modal .modal-dialog .modal-content .modal-header,
+#jano-Modal .modal-dialog .modal-content .modal-header,
+#kat-Modal .modal-dialog .modal-content .modal-header {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+#evan-Modal .modal-dialog .modal-content .modal-header .close-button,
+#jano-Modal .modal-dialog .modal-content .modal-header .close-button,
+#kat-Modal .modal-dialog .modal-content .modal-header .close-button {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+#evan-Modal .modal-dialog .modal-content .modal-header .close-button:hover,
+#jano-Modal .modal-dialog .modal-content .modal-header .close-button:hover,
+#kat-Modal .modal-dialog .modal-content .modal-header .close-button:hover {
+    text-shadow: -2px -2px 10px #aaa,
+                2px 2px 10px #aaa;
+}
 
 /* login signup page */
 .mdl-button--raised.mdl-button--colored {
@@ -434,9 +453,26 @@ ul.dash > li:before {
 
 @media (max-width: 576px) {
     #nav-input {
-        width: 70%;
-        min-width: 215px;
+        display: inline-block;
+        width: 60%;
         margin: 4px;
+    }
+
+    #nav-search {
+        display: inline-block;
+        width: 30%;
+    }
+
+    .filter span {
+        display: none;
+    }
+
+    .menu-btn {
+        right: 2px;
+    }
+
+    .search-btn {
+        right: 50px;
     }
 
 }
