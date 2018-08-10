@@ -38,7 +38,6 @@ body, html {
 
 .navbar-brand img {
     height: 40px;
-    /* padding-bottom: 10px; */
 }
 
 .navbar-brand h3 {
@@ -46,21 +45,43 @@ body, html {
     font-family: var(--title);
 }
 
-.nav-item .form-inline {
-    position: absolute;
-    left: 300px;
+.active {
+    font-weight: bold;
 }
 
-.filter {
-    display: inline;
+button:focus {
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(108,117,125,.5);
+    text-decoration: none;
+}
+
+.navbar-toggler {
+    border: none;
+    height: 40px;
+    width: 56px;
+}
+
+.search-btn {
     position: absolute;
-    left: 630px;
+    right: 90px;
+    top: 16px;
+}
+
+.menu-btn {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+}
+
+.nav-item .form-inline,
+.filter  {
+    display: inline;
 }
 
 .filterImg{
     height: 45px;
     image-rendering: crisp-edges;
-    margin-left: 20px;
+    margin-left: 18px;
     filter: grayscale(50%);
     transition: var(--trans);
 
@@ -291,9 +312,33 @@ ul.dash > li:before {
     box-sizing: border-box;
 }
 
+.about-body h4 {
+    margin: 40px 0px 15px;
+    font-weight: bold;
+}
+
+#evan-Modal .modal-dialog .modal-content .modal-header,
+#jano-Modal .modal-dialog .modal-content .modal-header,
+#kat-Modal .modal-dialog .modal-content .modal-header {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+#evan-Modal .modal-dialog .modal-content .modal-header .close-button,
+#jano-Modal .modal-dialog .modal-content .modal-header .close-button,
+#kat-Modal .modal-dialog .modal-content .modal-header .close-button {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+#evan-Modal .modal-dialog .modal-content .modal-header .close-button:hover,
+#jano-Modal .modal-dialog .modal-content .modal-header .close-button:hover,
+#kat-Modal .modal-dialog .modal-content .modal-header .close-button:hover {
+    text-shadow: -2px -2px 10px #aaa,
+                2px 2px 10px #aaa;
+}
 
 /* login signup page */
-
 .mdl-button--raised.mdl-button--colored {
     border: 2px solid #6c757d;
     background: transparent;
@@ -334,16 +379,17 @@ ul.dash > li:before {
         position: static !important;
     }
 
+    #searchbarResponsive {
+        margin-top: 15px;
+    }
+
     .filter {
         display: block;
         position: static !important;
         padding: 10px 0;
-        border-bottom: 1px solid #ccc;
     }
 
 }
-
-
 
 @media (max-width: 992px) {
     #restaurant-cards,
@@ -407,9 +453,26 @@ ul.dash > li:before {
 
 @media (max-width: 576px) {
     #nav-input {
-        width: 70%;
-        min-width: 215px;
+        display: inline-block;
+        width: 60%;
         margin: 4px;
+    }
+
+    #nav-search {
+        display: inline-block;
+        width: 30%;
+    }
+
+    .filter span {
+        display: none;
+    }
+
+    .menu-btn {
+        right: 2px;
+    }
+
+    .search-btn {
+        right: 50px;
     }
 
 }

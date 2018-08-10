@@ -335,6 +335,20 @@ $(function () {
         })
     }
 
+    // if open search will close nav
+    $(".search-btn").on("click", function() {
+        if ($("#navbarResponsive").hasClass("show")) {
+            $("#navbarResponsive").removeClass("show")
+        }
+    })
+
+    // if open nav will close search
+    $(".menu-btn").on("click", function() {
+        if ($("#searchbarResponsive").hasClass("show")) {
+            $("#searchbarResponsive").removeClass("show")
+        }
+    })
+
     // API search btn
     $("#nav-search").on("click", function (event) {
         event.preventDefault()
@@ -491,7 +505,7 @@ $(function () {
             var winHeight = $(window).height()
 
             if (winWidth >= 940) {
-                $("#map").attr("style", `width: ${mapWidth}px; height: ${mapHeight}px;`)
+                $("#map").attr("style", `width: ${mapWidth}px; height: ${winHeight}px;`)
                 map.resize();
             } else {
                 $("#map").attr("style", `width: ${winWidth}px; height: ${winHeight * .4}px;`)
@@ -501,6 +515,8 @@ $(function () {
 
     }
 })
+
+
 
 // geocoding an address function. 
 // when you use this, call it like so:
