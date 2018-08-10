@@ -18,6 +18,10 @@ body, html {
     font-family: var(--text);
 }
 
+p {
+    width: 100%;
+}
+
 .container-fluid {
     height: 90%;
     padding: 10px 0;
