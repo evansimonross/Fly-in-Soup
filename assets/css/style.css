@@ -303,7 +303,7 @@ ul.dash > li:before {
 
 .desc{
     font-size: 1.25em;
-    margin: 30px;
+    /* margin: 30px; */
     line-height: 30px;
 }
 
@@ -436,7 +436,7 @@ ul.dash > li:before {
 
     .desc{
         font-size: 1em;
-        margin: 20px 10px;
+        /* margin: 20px 10px; */
     }
 
     .desc .fancy {
