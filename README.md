@@ -3,6 +3,7 @@
 Fly-in-Soup is a tool for New Yorkers to easily access the health inspection data on restaurants in their area.
 
 ## How to Use
+[Click here to try the app for yourself](https://evansimonross.github.io/Fly-in-Soup/).
 
 To use this app, simply input a search and hit enter! Valid search parameters include the following: 
 
@@ -38,4 +39,3 @@ We used the following additional technologies:
 - [Font Awesome](https://fontawesome.com/)
 
 Our Fly-in-Soup logo is adapted from [squeakypics](http://www.squeakypics.co.uk/blog/2011/06/fly-soup/fly_soup/)
-ZIP Code to GeoCode data from <https://gist.github.com/erichurst/7882666>
